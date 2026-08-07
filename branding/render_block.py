@@ -1,13 +1,15 @@
-"""Map Art Maker block faces - concept B, second pass.
+"""Map Art Maker block faces - concept B, a bench where map tiles are assembled into one picture.
 
-Nothing here copies a Minecraft file. Vanilla was measured, not loaded: spruce_planks gave the
-plank idiom (4px bands, the last row of each band a dark seam, a 3-4 step ramp inside the band)
-and cartography_table gave the composition rule that actually matters - vanilla keeps its map
-motif down to ~25 accent pixels and lets wood own the face. The first pass ignored that, filled
-the whole top with 4px colour cells, and read as a sweet-shop grid instead of one picture.
+Nothing here copies a Minecraft file. Vanilla was measured, not loaded, and three things came out
+of that measurement:
 
-So: our own plank palette, and a small inset picture that stays continuous across its seams. The
-seams say "this is tiled"; the picture staying whole across them says "the tiles are one image".
+- the plank idiom: 4px bands, the last row of each band a dark seam, 3-4 steps inside a band
+- the composition rule: vanilla keeps its map motif to ~25 accent pixels and lets wood own the face
+- the palette rule: spruce_planks is 7 colours flat. One material stays in single digits
+
+Every colour below comes from a fixed list and pixels are assigned to entries in it. Nothing is
+computed per pixel: a random offset on each pixel produces a texture with ninety-odd colours that
+reads as photographic noise rather than pixel art, which is what the first version did.
 """
 
 import os
@@ -17,11 +19,15 @@ from PIL import Image
 
 OUT = os.path.dirname(os.path.abspath(__file__))
 
-# Our own wood, warm and mid-dark: clear of dark_oak (cartography already owns it) and of spruce.
-PLANK_LIGHT = (140, 106, 64)
-PLANK_MID = (129, 97, 57)
-PLANK_LOW = (120, 90, 53)
-PLANK_SEAM = (86, 62, 35)
+# Wood, light to dark. Warm and mid-dark: clear of the dark oak cartography already owns.
+WOOD = [
+    (146, 111, 67),
+    (136, 103, 61),
+    (127, 95, 56),
+    (117, 88, 51),
+    (86, 62, 35),
+]
+SEAM = 4  # index into WOOD for a band's closing row
 
 # Map colours, the same numbers the block itself writes (MapColor at NORMAL brightness).
 WATER = (55, 55, 190)
@@ -33,41 +39,38 @@ SHORE = (196, 180, 120)
 FRAME = (74, 53, 30)
 FRAME_HI = (152, 116, 70)
 
-# Rolled blank maps: paper, not the map colours - nothing is printed on them yet.
-PAPER = (196, 184, 148)
-PAPER_HI = (218, 208, 176)
-PAPER_EDGE = (150, 138, 108)
-
 
 def planks(seed, breaks=(6,)):
-    """4px bands, dark seam on the band's last row, plus a butt joint in one band.
+    """4px bands with a dark closing row, a butt joint in one band, and a few grain streaks.
 
-    Each band gets its own slight tone offset and a couple of grain streaks; uniform bands read as
-    corduroy, which is the giveaway of wood drawn by formula rather than observed.
+    Tone comes from picking a neighbouring index in WOOD, never from offsetting a channel, so the
+    face stays inside a five colour wood palette however much it is roughened.
     """
     rng = random.Random(seed)
     img = Image.new("RGB", (16, 16))
     px = img.load()
-    band_tone = [PLANK_LIGHT, PLANK_MID, PLANK_LOW, PLANK_SEAM]
     for band in range(4):
-        offset = rng.choice((-7, -3, 0, 3, 6))
+        lift = rng.choice((-1, 0, 0, 1))
         streaks = {rng.randrange(16) for _ in range(3)}
         for row in range(4):
             y = band * 4 + row
-            tone = band_tone[row]
             for x in range(16):
-                d = rng.randint(-4, 4) + (0 if row == 3 else offset)
-                if x in streaks and row != 3:
-                    d -= 9
-                px[x, y] = tuple(max(0, min(255, c + d)) for c in tone)
-    for bx in breaks:  # a butt joint between two planks, as vanilla does in one band
+                if row == 3:
+                    index = SEAM
+                else:
+                    index = row + lift
+                    if x in streaks:
+                        index += 1
+                    index += rng.choice((-1, 0, 0, 1))
+                px[x, y] = WOOD[max(0, min(len(WOOD) - 1, index))]
+    for bx in breaks:
         for y in range(4, 8):
-            px[bx, y] = tuple(max(0, c - 30) for c in px[bx, y])
+            px[bx, y] = WOOD[SEAM]
     return img
 
 
 def _scene():
-    """An abstract landmass on water - the shape vanilla uses on its own map icons."""
+    """An abstract landmass on water, the motif vanilla uses on its own map icons."""
     land = {
         (3, 4),
         (4, 4),
@@ -100,29 +103,30 @@ def _scene():
     return land, shore
 
 
-def top_face(seams, size=12, seed=21):
-    """Wood owns the face; a 12x12 inset holds the picture. Seams darken what is under them."""
+def top_face(seed=21, size=12):
+    """Wood owns the face; a 12x12 inset holds the picture, whole across its tile seams."""
     img = planks(seed)
     px = img.load()
     land, shore = _scene()
     x0 = y0 = (16 - size) // 2
-    scale = 12 / size
     for y in range(size):
         for x in range(size):
-            sx, sy = int(x * scale), int(y * scale)
-            if (sx, sy) in land:
-                c = LAND_HI if (sx + sy) % 5 == 0 else LAND
-            elif (sx, sy) in shore:
+            if (x, y) in land:
+                # Light comes from the top left, so the coast facing it catches it. Scattering the
+                # highlight on a modulus instead would put speckle everywhere and read as noise.
+                lit = (x, y - 1) not in land or (x - 1, y) not in land
+                c = LAND_HI if lit else LAND
+            elif (x, y) in shore:
                 c = SHORE
             else:
-                c = WATER_DEEP if (sx + sy) % 7 == 0 else WATER
+                shaded = (x, y - 1) in land or (x - 1, y) in land
+                c = WATER_DEEP if shaded else WATER
             px[x0 + x, y0 + y] = c
-    if seams:
-        for i in range(size):
-            for s in (size // 3, 2 * size // 3):
-                for sx, sy in ((x0 + s, y0 + i), (x0 + i, y0 + s)):
-                    px[sx, sy] = tuple(max(0, c - 46) for c in px[sx, sy])
-    lo, hi = x0 - 1, x0 + size  # recessed frame, catch light on the top-left lip
+    for i in range(size):  # the tiling shows, the picture does not break
+        for s in (size // 3, 2 * size // 3):
+            for sx, sy in ((x0 + s, y0 + i), (x0 + i, y0 + s)):
+                px[sx, sy] = WATER_DEEP if px[sx, sy] in (WATER, WATER_DEEP) else FRAME
+    lo, hi = x0 - 1, x0 + size
     for i in range(lo, hi + 1):
         px[i, lo] = FRAME_HI
         px[lo, i] = FRAME_HI
@@ -131,14 +135,14 @@ def top_face(seams, size=12, seed=21):
     return img
 
 
-def front_drawer(seed=22):
+def front_face(seed=22):
     """One wide drawer. Furniture, not props - the top face already carries the identity."""
     img = planks(seed, breaks=(11,))
     px = img.load()
-    for y in range(8, 14):
-        for x in range(2, 14):
-            px[x, y] = tuple(max(0, c - 18) for c in px[x, y])
-    for x in range(2, 14):  # drawer mouth: dark above, catch light on the front edge below
+    for y in range(9, 13):
+        for x in range(3, 13):
+            px[x, y] = WOOD[3]
+    for x in range(2, 14):
         px[x, 8] = FRAME
         px[x, 13] = FRAME_HI
     for y in range(8, 14):
@@ -155,7 +159,7 @@ def side_face(seed=23):
     img = planks(seed, breaks=(9,))
     px = img.load()
     for x in range(16):
-        px[x, 4] = tuple(max(0, c - 28) for c in px[x, 4])
+        px[x, 4] = FRAME
         px[x, 5] = FRAME_HI
     return img
 
@@ -164,15 +168,11 @@ def bottom_face(seed=24):
     return planks(seed, breaks=(3,))
 
 
-# Settled: top = 12px picture with tile seams, front = the drawer. Both frozen.
-TOP = dict(seams=True, size=12)
-
-
 def write_faces(target):
     os.makedirs(target, exist_ok=True)
     faces = {
-        "map_art_maker_top": top_face(TOP["seams"], TOP["size"]),
-        "map_art_maker_front": front_drawer(),
+        "map_art_maker_top": top_face(),
+        "map_art_maker_front": front_face(),
         "map_art_maker_side": side_face(),
         "map_art_maker_bottom": bottom_face(),
     }
@@ -186,7 +186,14 @@ if __name__ == "__main__":
     import sys
 
     default = os.path.join(
-        os.path.dirname(OUT), "common", "src", "main", "resources",
-        "assets", "map_art_maker", "textures", "block",
+        os.path.dirname(OUT),
+        "common",
+        "src",
+        "main",
+        "resources",
+        "assets",
+        "map_art_maker",
+        "textures",
+        "block",
     )
     write_faces(sys.argv[1] if len(sys.argv) > 1 else default)
