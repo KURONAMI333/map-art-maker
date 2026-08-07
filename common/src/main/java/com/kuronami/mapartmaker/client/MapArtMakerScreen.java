@@ -28,8 +28,9 @@ public class MapArtMakerScreen extends AbstractContainerScreen<MapArtMakerMenu> 
 
     public MapArtMakerScreen(MapArtMakerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
-        this.imageHeight = 166;
-        this.inventoryLabelY = this.imageHeight - 94;
+        this.imageWidth = MapArtMakerMenu.PANEL_WIDTH;
+        this.imageHeight = MapArtMakerMenu.PANEL_HEIGHT;
+        this.inventoryLabelY = MapArtMakerMenu.INVENTORY_LABEL_Y;
     }
 
     @Override
@@ -37,24 +38,29 @@ public class MapArtMakerScreen extends AbstractContainerScreen<MapArtMakerMenu> 
         super.init();
         MapArtFeedbackHolder.clear();
 
-        urlBox = new EditBox(font, leftPos + 8, topPos + 44, 160, 16,
+        urlBox = new EditBox(font, leftPos + MapArtMakerMenu.URL_BOX_X, topPos + MapArtMakerMenu.URL_BOX_Y,
+                MapArtMakerMenu.URL_BOX_WIDTH, MapArtMakerMenu.URL_BOX_HEIGHT,
                 Component.translatable("gui.map_art_maker.url"));
         urlBox.setMaxLength(CreateMapArtPayload.MAX_URL_LENGTH);
         urlBox.setHint(Component.translatable("gui.map_art_maker.url_hint"));
         addRenderableWidget(urlBox);
 
+        int buttonY = topPos + MapArtMakerMenu.BUTTON_Y;
+        int buttonWidth = MapArtMakerMenu.BUTTON_WIDTH;
+        int buttonHeight = MapArtMakerMenu.BUTTON_HEIGHT;
+
         addRenderableWidget(Button.builder(sizeLabel(), button -> {
             tiles = tiles % ModNetwork.MAX_TILES_PER_SIDE + 1;
             button.setMessage(sizeLabel());
-        }).bounds(leftPos + 8, topPos + 62, 52, 18).build());
+        }).bounds(leftPos + 8, buttonY, buttonWidth, buttonHeight).build());
 
         addRenderableWidget(Button.builder(ditherLabel(), button -> {
             dither = !dither;
             button.setMessage(ditherLabel());
-        }).bounds(leftPos + 62, topPos + 62, 52, 18).build());
+        }).bounds(leftPos + 62, buttonY, buttonWidth, buttonHeight).build());
 
         addRenderableWidget(Button.builder(Component.translatable("gui.map_art_maker.create"),
-                button -> submit()).bounds(leftPos + 116, topPos + 62, 52, 18).build());
+                button -> submit()).bounds(leftPos + 116, buttonY, buttonWidth, buttonHeight).build());
     }
 
     private Component sizeLabel() {
@@ -84,7 +90,7 @@ public class MapArtMakerScreen extends AbstractContainerScreen<MapArtMakerMenu> 
         Component feedback = MapArtFeedbackHolder.message();
         if (!feedback.getString().isEmpty()) {
             int colour = MapArtFeedbackHolder.success() ? 0x4CAF50 : 0xC62828;
-            graphics.drawString(font, feedback, 8, imageHeight - 104, colour, false);
+            graphics.drawString(font, feedback, 8, MapArtMakerMenu.FEEDBACK_Y, colour, false);
         }
     }
 

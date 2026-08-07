@@ -28,13 +28,47 @@ public class MapArtMakerMenu extends AbstractContainerMenu {
         this(id, playerInventory, blockEntity, blockEntity.getBlockPos());
     }
 
+    /**
+     * Panel geometry, shared with the screen so slots and widgets cannot drift apart.
+     *
+     * <p>The screen stacks a URL field and a button row above the slots, so the panel is taller
+     * than the vanilla 166: the working area has to fit 16 (field) + 18 (buttons) + 54 (the 3x3
+     * output) plus gaps. Every output slot has to stay reachable by hand — {@code
+     * MapArtMakerBlockEntity.consumeBlanksAndStore} needs all nine free, so a covered slot would
+     * strand the block permanently for anyone without hoppers.
+     */
+    public static final int PANEL_WIDTH = 176;
+    public static final int PANEL_HEIGHT = 224;
+
+    public static final int URL_BOX_X = 8;
+    public static final int URL_BOX_Y = 20;
+    public static final int URL_BOX_WIDTH = 160;
+    public static final int URL_BOX_HEIGHT = 16;
+
+    public static final int BUTTON_Y = 40;
+    public static final int BUTTON_WIDTH = 52;
+    public static final int BUTTON_HEIGHT = 18;
+
+    public static final int FEEDBACK_Y = 60;
+
+    public static final int BLANK_SLOT_X = 26;
+    public static final int BLANK_SLOT_Y = 92;
+    public static final int OUTPUT_X = 98;
+    public static final int OUTPUT_Y = 74;
+    public static final int SLOT_PITCH = 18;
+
+    /** Vanilla spacing measured from the bottom of the panel, so it holds at any panel height. */
+    public static final int INVENTORY_LABEL_Y = PANEL_HEIGHT - 94;
+    private static final int PLAYER_INVENTORY_Y = PANEL_HEIGHT - 82;
+    private static final int HOTBAR_Y = PANEL_HEIGHT - 24;
+
     private MapArtMakerMenu(int id, Inventory playerInventory, Container container, BlockPos pos) {
         super(ModMenus.MAP_ART_MAKER.get(), id);
         checkContainerSize(container, MapArtMakerBlockEntity.SIZE);
         this.container = container;
         this.pos = pos;
 
-        addSlot(new Slot(container, MapArtMakerBlockEntity.SLOT_BLANK, 26, 24) {
+        addSlot(new Slot(container, MapArtMakerBlockEntity.SLOT_BLANK, BLANK_SLOT_X, BLANK_SLOT_Y) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return stack.is(Items.MAP);
@@ -44,17 +78,19 @@ public class MapArtMakerMenu extends AbstractContainerMenu {
         // 3x3 of finished art, mirroring the default tile limit.
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 3; column++) {
-                addSlot(new OutputSlot(container, 1 + row * 3 + column, 98 + column * 18, 17 + row * 18));
+                addSlot(new OutputSlot(container, 1 + row * 3 + column,
+                        OUTPUT_X + column * SLOT_PITCH, OUTPUT_Y + row * SLOT_PITCH));
             }
         }
 
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
-                addSlot(new Slot(playerInventory, column + row * 9 + 9, 8 + column * 18, 84 + row * 18));
+                addSlot(new Slot(playerInventory, column + row * 9 + 9,
+                        8 + column * SLOT_PITCH, PLAYER_INVENTORY_Y + row * SLOT_PITCH));
             }
         }
         for (int column = 0; column < 9; column++) {
-            addSlot(new Slot(playerInventory, column, 8 + column * 18, 142));
+            addSlot(new Slot(playerInventory, column, 8 + column * SLOT_PITCH, HOTBAR_Y));
         }
     }
 
