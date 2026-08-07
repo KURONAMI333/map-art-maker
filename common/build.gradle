@@ -5,6 +5,8 @@ plugins {
 
 neoForge {
     neoFormVersion = neo_form_version
+    // The palette reads vanilla colour data, so the unit tests need Minecraft on their classpath.
+    addModdingDependenciesTo sourceSets.test
     // Automatically enable AccessTransformers if the file exists
     def at = file('src/main/resources/META-INF/accesstransformer.cfg')
     if (at.exists()) {
