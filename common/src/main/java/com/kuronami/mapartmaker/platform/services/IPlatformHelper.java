@@ -3,6 +3,14 @@ package com.kuronami.mapartmaker.platform.services;
 public interface IPlatformHelper {
 
     /**
+     * BlockEntityType を生成する（vanilla builder は common から触れないため loader に委譲）。
+     * NeoForge は {@code BlockEntityType.Builder}、Fabric は {@code FabricBlockEntityTypeBuilder}。
+     */
+    <T extends net.minecraft.world.level.block.entity.BlockEntity>
+            net.minecraft.world.level.block.entity.BlockEntityType<T> createBlockEntityType(
+                    ModBlockEntitySupplier<T> supplier, net.minecraft.world.level.block.Block block);
+
+    /**
      * Gets the name of the current platform
      *
      * @return The name of the current platform.

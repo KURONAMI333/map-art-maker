@@ -1,6 +1,8 @@
 package com.kuronami.mapartmaker.platform;
 
 import com.kuronami.mapartmaker.Constants;
+import com.kuronami.mapartmaker.platform.services.IMenuHelper;
+import com.kuronami.mapartmaker.platform.services.INetworkHelper;
 import com.kuronami.mapartmaker.platform.services.IPlatformHelper;
 
 import java.util.ServiceLoader;
@@ -14,6 +16,12 @@ public class Services {
     // For example this can be used to check if the code is running on Forge vs Fabric, or to ask the modloader if another
     // mod is loaded.
     public static final IPlatformHelper PLATFORM = load(IPlatformHelper.class);
+
+    /** extended menu（BlockPos を client ctor へ運ぶ）の loader 実装。 */
+    public static final IMenuHelper MENU = load(IMenuHelper.class);
+
+    /** payload 送信の loader 実装。 */
+    public static final INetworkHelper NETWORK = load(INetworkHelper.class);
 
     // This code is used to load a service for the current environment. Your implementation of the service must be defined
     // manually by including a text file in META-INF/services named with the fully qualified class name of the service.
