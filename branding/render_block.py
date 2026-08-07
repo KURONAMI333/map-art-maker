@@ -33,6 +33,11 @@ SHORE = (196, 180, 120)
 FRAME = (74, 53, 30)
 FRAME_HI = (152, 116, 70)
 
+# Rolled blank maps: paper, not the map colours - nothing is printed on them yet.
+PAPER = (196, 184, 148)
+PAPER_HI = (218, 208, 176)
+PAPER_EDGE = (150, 138, 108)
+
 
 def planks(seed, breaks=(6,)):
     """4px bands, dark seam on the band's last row, plus a butt joint in one band.
@@ -127,19 +132,28 @@ def top_face(seams, size=12, seed=21):
 
 
 def front_face(seed=22):
-    """The output mouth, with one finished tile part way out of it."""
+    """A rack of rolled blank maps - the stock this bench eats.
+
+    The earlier draft put a finished map half way out of a mouth in this face, which the block does
+    not have: results leave through the screen or a hopper underneath, never the front. Blanks are
+    the one thing the front can honestly show, since the block really does hold a stack of them.
+    """
     img = planks(seed, breaks=(11,))
     px = img.load()
-    for y in range(9, 14):
-        for x in range(3, 13):
+    for y in range(8, 14):  # the rack well
+        for x in range(2, 14):
             px[x, y] = FRAME
-    land, shore = _scene()
-    for y in range(10, 13):
-        for x in range(4, 12):
-            sx, sy = x - 4, y - 10 + 4
-            px[x, y] = LAND if (sx, sy) in land else WATER
-    for x in range(3, 13):
-        px[x, 8] = FRAME_HI
+    for i in range(4):  # four rolled blanks, end on
+        x0 = 3 + i * 3
+        for y in range(9, 13):
+            px[x0, y] = PAPER_EDGE
+            px[x0 + 1, y] = PAPER
+        px[x0, 9] = PAPER_HI
+        px[x0 + 1, 9] = PAPER_HI
+        px[x0, 12] = PAPER_EDGE
+        px[x0 + 1, 12] = PAPER_EDGE
+    for x in range(2, 14):  # lip above the rack
+        px[x, 7] = FRAME_HI
     return img
 
 
