@@ -2,6 +2,7 @@ package com.kuronami.mapartmaker.network;
 
 import com.kuronami.mapartmaker.Constants;
 import com.kuronami.mapartmaker.block.MapArtMakerBlockEntity;
+import com.kuronami.mapartmaker.config.ModConfig;
 import com.kuronami.mapartmaker.mapart.ImageFetcher;
 import com.kuronami.mapartmaker.mapart.MapArtService;
 import com.kuronami.mapartmaker.platform.Services;
@@ -23,12 +24,6 @@ import java.util.concurrent.Executors;
  */
 public final class ModNetwork {
 
-    /** Default ceiling on tiles per request; also the number of output slots. */
-    public static final int MAX_TILES_PER_SIDE = 3;
-
-    /** Blocks a player from making the server fetch from its own network. Config will expose this. */
-    public static final boolean ALLOW_PRIVATE_HOSTS = false;
-
     /** How far a player may stand from the block and still drive it. */
     private static final double REACH_SQUARED = 64.0D;
 
@@ -47,7 +42,8 @@ public final class ModNetwork {
         ServerLevel level = player.serverLevel();
 
         if (payload.tilesX() < 1 || payload.tilesY() < 1
-                || payload.tilesX() > MAX_TILES_PER_SIDE || payload.tilesY() > MAX_TILES_PER_SIDE) {
+                || payload.tilesX() > ModConfig.maxTilesPerSide()
+                || payload.tilesY() > ModConfig.maxTilesPerSide()) {
             fail(player, "message.map_art_maker.bad_size");
             return;
         }
@@ -80,7 +76,7 @@ public final class ModNetwork {
         CompletableFuture
                 .supplyAsync(() -> {
                     try {
-                        return ImageFetcher.fetchScaled(url, tilesX, tilesY, ALLOW_PRIVATE_HOSTS);
+                        return ImageFetcher.fetchScaled(url, tilesX, tilesY, ModConfig.allowPrivateHosts());
                     } catch (ImageFetcher.FetchException e) {
                         throw new CompletionFailure(e.getMessage());
                     }

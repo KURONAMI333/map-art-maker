@@ -3,7 +3,7 @@ package com.kuronami.mapartmaker.client;
 import com.kuronami.mapartmaker.Constants;
 import com.kuronami.mapartmaker.menu.MapArtMakerMenu;
 import com.kuronami.mapartmaker.network.CreateMapArtPayload;
-import com.kuronami.mapartmaker.network.ModNetwork;
+import com.kuronami.mapartmaker.config.ModConfig;
 import com.kuronami.mapartmaker.platform.Services;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -50,7 +50,7 @@ public class MapArtMakerScreen extends AbstractContainerScreen<MapArtMakerMenu> 
         int buttonHeight = MapArtMakerMenu.BUTTON_HEIGHT;
 
         addRenderableWidget(Button.builder(sizeLabel(), button -> {
-            tiles = tiles % ModNetwork.MAX_TILES_PER_SIDE + 1;
+            tiles = tiles % ModConfig.maxTilesPerSide() + 1;
             button.setMessage(sizeLabel());
         }).bounds(leftPos + 8, buttonY, buttonWidth, buttonHeight).build());
 
