@@ -150,52 +150,6 @@ def front_drawer(seed=22):
     return img
 
 
-def front_pinned(seed=22):
-    """A finished map pinned to the bench front, off centre, the way a reference sheet gets tacked up."""
-    img = planks(seed, breaks=(3,))
-    px = img.load()
-    land, shore = _scene()
-    ox, oy, size = 5, 6, 8  # off centre, and not square to the face
-    for y in range(size):
-        for x in range(size):
-            sx, sy = int(x * 12 / size), int(y * 12 / size)
-            if (sx, sy) in land:
-                c = LAND
-            elif (sx, sy) in shore:
-                c = SHORE
-            else:
-                c = WATER
-            px[ox + x, oy + y] = c
-    for i in range(-1, size + 1):  # thin dark border, no bevel - it is paper, not a panel
-        for (bx, by) in ((ox + i, oy - 1), (ox + i, oy + size), (ox - 1, oy + i), (ox + size, oy + i)):
-            if 0 <= bx < 16 and 0 <= by < 16:
-                px[bx, by] = FRAME
-    px[ox + 1, oy - 1] = PAPER_HI      # two tacks, deliberately not symmetric
-    px[ox + size - 2, oy + size] = PAPER_HI
-    return img
-
-
-def front_shelf(seed=22):
-    """An open shelf with rolls lying flat: different lengths, overlapping, none of them aligned."""
-    img = planks(seed, breaks=(11,))
-    px = img.load()
-    for y in range(8, 14):
-        for x in range(2, 14):
-            px[x, y] = FRAME
-    rolls = ((3, 9, 7), (6, 11, 6), (4, 12, 4))  # x0, y, length - all different, all offset
-    for x0, y, length in rolls:
-        for x in range(x0, min(x0 + length, 13)):
-            px[x, y] = PAPER
-        px[x0, y] = PAPER_EDGE
-        px[min(x0 + length, 13) - 1, y] = PAPER_EDGE
-        if y - 1 >= 8:
-            for x in range(x0, min(x0 + length, 13)):
-                px[x, y - 1] = PAPER_HI
-    for x in range(2, 14):
-        px[x, 7] = FRAME_HI
-    return img
-
-
 def side_face(seed=23):
     """A bench flank: planks with an apron rail. Nothing to read - the top and front carry it."""
     img = planks(seed, breaks=(9,))
@@ -210,20 +164,29 @@ def bottom_face(seed=24):
     return planks(seed, breaks=(3,))
 
 
-# Top face is settled (d1: 12px picture with tile seams) and frozen. Only the front varies now.
+# Settled: top = 12px picture with tile seams, front = the drawer. Both frozen.
 TOP = dict(seams=True, size=12)
-FRONTS = {
-    "f1_drawer": front_drawer,
-    "f2_pinned": front_pinned,
-    "f3_shelf": front_shelf,
-}
+
+
+def write_faces(target):
+    os.makedirs(target, exist_ok=True)
+    faces = {
+        "map_art_maker_top": top_face(TOP["seams"], TOP["size"]),
+        "map_art_maker_front": front_drawer(),
+        "map_art_maker_side": side_face(),
+        "map_art_maker_bottom": bottom_face(),
+    }
+    for name, img in faces.items():
+        path = os.path.join(target, name + ".png")
+        img.save(path)
+        print("wrote", path)
+
 
 if __name__ == "__main__":
-    for name, front in FRONTS.items():
-        d = os.path.join(OUT, "cand3", name)
-        os.makedirs(d, exist_ok=True)
-        top_face(TOP["seams"], TOP["size"]).save(os.path.join(d, "top.png"))
-        front().save(os.path.join(d, "front.png"))
-        side_face().save(os.path.join(d, "side.png"))
-        bottom_face().save(os.path.join(d, "bottom.png"))
-        print("wrote", d)
+    import sys
+
+    default = os.path.join(
+        os.path.dirname(OUT), "common", "src", "main", "resources",
+        "assets", "map_art_maker", "textures", "block",
+    )
+    write_faces(sys.argv[1] if len(sys.argv) > 1 else default)
