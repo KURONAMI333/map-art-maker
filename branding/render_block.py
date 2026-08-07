@@ -131,28 +131,67 @@ def top_face(seams, size=12, seed=21):
     return img
 
 
-def front_face(seed=22):
-    """A rack of rolled blank maps - the stock this bench eats.
-
-    The earlier draft put a finished map half way out of a mouth in this face, which the block does
-    not have: results leave through the screen or a hopper underneath, never the front. Blanks are
-    the one thing the front can honestly show, since the block really does hold a stack of them.
-    """
+def front_drawer(seed=22):
+    """One wide drawer. Furniture, not props - the top face already carries the identity."""
     img = planks(seed, breaks=(11,))
     px = img.load()
-    for y in range(8, 14):  # the rack well
+    for y in range(8, 14):
+        for x in range(2, 14):
+            px[x, y] = tuple(max(0, c - 18) for c in px[x, y])
+    for x in range(2, 14):  # drawer mouth: dark above, catch light on the front edge below
+        px[x, 8] = FRAME
+        px[x, 13] = FRAME_HI
+    for y in range(8, 14):
+        px[2, y] = FRAME
+        px[13, y] = FRAME
+    for x in range(7, 11):  # a single pull, slightly right of centre
+        px[x, 10] = FRAME
+        px[x, 11] = FRAME_HI
+    return img
+
+
+def front_pinned(seed=22):
+    """A finished map pinned to the bench front, off centre, the way a reference sheet gets tacked up."""
+    img = planks(seed, breaks=(3,))
+    px = img.load()
+    land, shore = _scene()
+    ox, oy, size = 5, 6, 8  # off centre, and not square to the face
+    for y in range(size):
+        for x in range(size):
+            sx, sy = int(x * 12 / size), int(y * 12 / size)
+            if (sx, sy) in land:
+                c = LAND
+            elif (sx, sy) in shore:
+                c = SHORE
+            else:
+                c = WATER
+            px[ox + x, oy + y] = c
+    for i in range(-1, size + 1):  # thin dark border, no bevel - it is paper, not a panel
+        for (bx, by) in ((ox + i, oy - 1), (ox + i, oy + size), (ox - 1, oy + i), (ox + size, oy + i)):
+            if 0 <= bx < 16 and 0 <= by < 16:
+                px[bx, by] = FRAME
+    px[ox + 1, oy - 1] = PAPER_HI      # two tacks, deliberately not symmetric
+    px[ox + size - 2, oy + size] = PAPER_HI
+    return img
+
+
+def front_shelf(seed=22):
+    """An open shelf with rolls lying flat: different lengths, overlapping, none of them aligned."""
+    img = planks(seed, breaks=(11,))
+    px = img.load()
+    for y in range(8, 14):
         for x in range(2, 14):
             px[x, y] = FRAME
-    for i in range(4):  # four rolled blanks, end on
-        x0 = 3 + i * 3
-        for y in range(9, 13):
-            px[x0, y] = PAPER_EDGE
-            px[x0 + 1, y] = PAPER
-        px[x0, 9] = PAPER_HI
-        px[x0 + 1, 9] = PAPER_HI
-        px[x0, 12] = PAPER_EDGE
-        px[x0 + 1, 12] = PAPER_EDGE
-    for x in range(2, 14):  # lip above the rack
+    rolls = ((3, 9, 7), (6, 11, 6), (4, 12, 4))  # x0, y, length - all different, all offset
+    for x0, y, length in rolls:
+        for x in range(x0, min(x0 + length, 13)):
+            px[x, y] = PAPER
+        px[x0, y] = PAPER_EDGE
+        px[min(x0 + length, 13) - 1, y] = PAPER_EDGE
+        if y - 1 >= 8:
+            for x in range(x0, min(x0 + length, 13)):
+                px[x, y - 1] = PAPER_HI
+    for x in range(2, 14):
         px[x, 7] = FRAME_HI
     return img
 
@@ -171,18 +210,20 @@ def bottom_face(seed=24):
     return planks(seed, breaks=(3,))
 
 
-CANDIDATES = {
-    "d1_seamed": dict(seams=True, size=12),
-    "d2_seamless": dict(seams=False, size=12),
-    "d3_small": dict(seams=True, size=10),
+# Top face is settled (d1: 12px picture with tile seams) and frozen. Only the front varies now.
+TOP = dict(seams=True, size=12)
+FRONTS = {
+    "f1_drawer": front_drawer,
+    "f2_pinned": front_pinned,
+    "f3_shelf": front_shelf,
 }
 
 if __name__ == "__main__":
-    for name, cfg in CANDIDATES.items():
-        d = os.path.join(OUT, "cand2", name)
+    for name, front in FRONTS.items():
+        d = os.path.join(OUT, "cand3", name)
         os.makedirs(d, exist_ok=True)
-        top_face(cfg["seams"], cfg["size"]).save(os.path.join(d, "top.png"))
-        front_face().save(os.path.join(d, "front.png"))
+        top_face(TOP["seams"], TOP["size"]).save(os.path.join(d, "top.png"))
+        front().save(os.path.join(d, "front.png"))
         side_face().save(os.path.join(d, "side.png"))
         bottom_face().save(os.path.join(d, "bottom.png"))
         print("wrote", d)
