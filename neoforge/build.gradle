@@ -33,6 +33,11 @@ neoForge {
         server {
             server()
         }
+        // Headless behaviour tests: ./gradlew :neoforge:runGameTestServer
+        // The namespace is already set for every run above by configureEach.
+        gameTestServer {
+            type = 'gameTestServer'
+        }
     }
     mods {
         "${mod_id}" {

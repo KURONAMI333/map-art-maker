@@ -3,6 +3,7 @@ package com.kuronami.mapartmaker;
 import com.kuronami.mapartmaker.client.MapArtMakerScreen;
 import com.kuronami.mapartmaker.config.NeoForgeConfig;
 import com.kuronami.mapartmaker.network.NeoForgePayloads;
+import com.kuronami.mapartmaker.platform.registry.NeoForgeRegistrationProvider;
 import com.kuronami.mapartmaker.register.ModMenus;
 import com.kuronami.mapartmaker.register.ModRegistries;
 
@@ -18,7 +19,10 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 public class MapArtMaker {
 
     public MapArtMaker(IEventBus eventBus, ModContainer container) {
+        // init() runs the holders' static initialisers, which is what creates the deferred
+        // registers; they do nothing until they are bound to the bus, so the order matters.
         ModRegistries.init();
+        NeoForgeRegistrationProvider.registerAll(eventBus);
         eventBus.addListener(NeoForgePayloads::register);
         container.registerConfig(ModConfig.Type.COMMON, NeoForgeConfig.SPEC);
         // COMMON rather than SERVER so the client knows the tile limit its size button cycles
