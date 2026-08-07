@@ -1,0 +1,18 @@
+{
+  "block.map_art_maker.map_art_maker": "Map Art Maker",
+  "itemGroup.map_art_maker": "Map Art Maker",
+  "container.map_art_maker": "Map Art Maker",
+  "gui.map_art_maker.url": "Image URL",
+  "gui.map_art_maker.url_hint": "Paste an image link",
+  "gui.map_art_maker.size": "%s x %s",
+  "gui.map_art_maker.dither_on": "Dither: on",
+  "gui.map_art_maker.dither_off": "Dither: off",
+  "gui.map_art_maker.create": "Create",
+  "message.map_art_maker.bad_size": "That size is not allowed.",
+  "message.map_art_maker.too_far": "You are too far away.",
+  "message.map_art_maker.no_block": "The block is gone.",
+  "message.map_art_maker.need_maps": "Needs %s empty maps.",
+  "message.map_art_maker.no_room": "No room for the finished maps.",
+  "message.map_art_maker.done": "Created %s map(s).",
+  "message.map_art_maker.failed": "Could not create the map art."
+}

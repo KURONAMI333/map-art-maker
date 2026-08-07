@@ -1,0 +1,18 @@
+{
+  "block.map_art_maker.map_art_maker": "Map Art Maker",
+  "itemGroup.map_art_maker": "Map Art Maker",
+  "container.map_art_maker": "Map Art Maker",
+  "gui.map_art_maker.url": "画像URL",
+  "gui.map_art_maker.url_hint": "画像のリンクを貼る",
+  "gui.map_art_maker.size": "%s x %s",
+  "gui.map_art_maker.dither_on": "ディザ: あり",
+  "gui.map_art_maker.dither_off": "ディザ: なし",
+  "gui.map_art_maker.create": "作成",
+  "message.map_art_maker.bad_size": "そのサイズは指定できません。",
+  "message.map_art_maker.too_far": "ブロックから離れすぎています。",
+  "message.map_art_maker.no_block": "ブロックがありません。",
+  "message.map_art_maker.need_maps": "空の地図が %s 枚必要です。",
+  "message.map_art_maker.no_room": "完成した地図を置く空きがありません。",
+  "message.map_art_maker.done": "地図を %s 枚作成しました。",
+  "message.map_art_maker.failed": "地図アートを作成できませんでした。"
+}

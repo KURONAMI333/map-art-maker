@@ -1,0 +1,18 @@
+{
+  "block.map_art_maker.map_art_maker": "Map Art Maker",
+  "itemGroup.map_art_maker": "Map Art Maker",
+  "container.map_art_maker": "Map Art Maker",
+  "gui.map_art_maker.url": "URL de l'image",
+  "gui.map_art_maker.url_hint": "Collez un lien d'image",
+  "gui.map_art_maker.size": "%s x %s",
+  "gui.map_art_maker.dither_on": "Tramage : activé",
+  "gui.map_art_maker.dither_off": "Tramage : désactivé",
+  "gui.map_art_maker.create": "Créer",
+  "message.map_art_maker.bad_size": "Cette taille n'est pas autorisée.",
+  "message.map_art_maker.too_far": "Vous êtes trop loin.",
+  "message.map_art_maker.no_block": "Le bloc a disparu.",
+  "message.map_art_maker.need_maps": "Nécessite %s cartes vierges.",
+  "message.map_art_maker.no_room": "Pas de place pour les cartes terminées.",
+  "message.map_art_maker.done": "%s carte(s) créée(s).",
+  "message.map_art_maker.failed": "Impossible de créer l'art de carte."
+}

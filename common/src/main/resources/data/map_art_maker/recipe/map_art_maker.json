@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SSS",
+    "PMP",
+    "PPP"
+  ],
+  "key": {
+    "S": { "item": "minecraft:stick" },
+    "P": { "tag": "minecraft:planks" },
+    "M": { "item": "minecraft:map" }
+  },
+  "result": {
+    "id": "map_art_maker:map_art_maker",
+    "count": 1
+  }
+}
