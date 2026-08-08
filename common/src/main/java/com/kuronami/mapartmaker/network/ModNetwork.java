@@ -7,6 +7,7 @@ import com.kuronami.mapartmaker.mapart.ImageFetcher;
 import com.kuronami.mapartmaker.mapart.MapArtService;
 import com.kuronami.mapartmaker.platform.Services;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,7 +26,7 @@ import java.util.concurrent.Executors;
 public final class ModNetwork {
 
     /** How far a player may stand from the block and still drive it. */
-    private static final double REACH_SQUARED = 64.0D;
+    static final double REACH_SQUARED = 64.0D;
 
     /** Downloads must never run on the server thread. One shared, daemon, bounded pool. */
     private static final Executor DOWNLOADS = Executors.newFixedThreadPool(2, runnable -> {
@@ -98,34 +99,42 @@ public final class ModNetwork {
             return;
         }
 
+        List<ItemStack> maps = MapArtService.createTiles(player.serverLevel(), pixels, payload.tilesX(), payload.tilesY(),
+                payload.dither());
+        storeAssembledMaps(player, payload.pos(), payload.tilesX(), payload.tilesY(), maps);
+    }
+
+    /**
+     * Re-checks stock and stores already-built tiles. Shared by the URL path (above, after a
+     * download) and {@link MapArtTileAccumulator} (after a file-drop upload finishes reassembling):
+     * either way the pixels took real time to arrive, so the container may have changed since the
+     * request started.
+     */
+    static void storeAssembledMaps(ServerPlayer player, BlockPos pos, int tilesX, int tilesY, List<ItemStack> maps) {
         ServerLevel level = player.serverLevel();
-        BlockEntity be = level.getBlockEntity(payload.pos());
+        BlockEntity be = level.getBlockEntity(pos);
         if (!(be instanceof MapArtMakerBlockEntity maker)) {
             fail(player, "message.map_art_maker.no_block");
             return;
         }
 
-        // Re-check stock: the download took real time and the container may have changed.
-        int required = payload.tilesX() * payload.tilesY();
+        int required = tilesX * tilesY;
         if (maker.blankCount() < required) {
             fail(player, "message.map_art_maker.need_maps", required);
             return;
         }
-
-        List<ItemStack> maps = MapArtService.createTiles(level, pixels, payload.tilesX(), payload.tilesY(),
-                payload.dither());
-        if (!maker.consumeBlanksAndStore(payload.tilesX(), payload.tilesY(), maps)) {
+        if (!maker.consumeBlanksAndStore(tilesX, tilesY, maps)) {
             fail(player, "message.map_art_maker.no_room");
             return;
         }
         send(player, true, Component.translatable("message.map_art_maker.done", required));
     }
 
-    private static void fail(ServerPlayer player, String key, Object... args) {
+    static void fail(ServerPlayer player, String key, Object... args) {
         send(player, false, Component.translatable(key, args));
     }
 
-    private static void send(ServerPlayer player, boolean success, Component message) {
+    static void send(ServerPlayer player, boolean success, Component message) {
         Services.NETWORK.sendToPlayer(player, new MapArtFeedbackPayload(success, message));
     }
 

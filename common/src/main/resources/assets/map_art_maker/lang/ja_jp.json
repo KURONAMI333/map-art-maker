@@ -15,5 +15,9 @@
   "message.map_art_maker.no_room": "完成した地図を置く空きがありません。",
   "message.map_art_maker.done": "地図を %s 枚作成しました。",
   "message.map_art_maker.failed": "地図アートを作成できませんでした。",
-  "gui.map_art_maker.paste": "貼付"
+  "gui.map_art_maker.paste": "貼付",
+  "message.map_art_maker.drop_unreadable": "そのファイルを読み込めませんでした。",
+  "message.map_art_maker.drop_too_large": "そのファイルは8MBを超えています。",
+  "message.map_art_maker.drop_not_image": "そのファイルは画像ではありません。",
+  "message.map_art_maker.upload_failed": "アップロードに失敗しました。もう一度お試しください。"
 }

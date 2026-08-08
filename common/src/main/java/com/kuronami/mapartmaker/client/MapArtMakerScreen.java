@@ -17,6 +17,9 @@ import net.minecraft.world.entity.player.Inventory;
 
 import org.lwjgl.glfw.GLFW;
 
+import java.nio.file.Path;
+import java.util.List;
+
 /**
  * 貼る・押す・待つの3操作しか無い。サイズは1辺のタイル数で、実際の画素は 128×タイル数。
  */
@@ -126,6 +129,19 @@ public class MapArtMakerScreen extends AbstractContainerScreen<MapArtMakerMenu> 
             int colour = MapArtFeedbackHolder.success() ? 0x4CAF50 : 0xC62828;
             graphics.drawString(font, feedback, 8, MapArtMakerMenu.FEEDBACK_Y, colour, false);
         }
+    }
+
+    /**
+     * A file dropped on the window while this screen is open. Only the first file is used — a
+     * player dropping several images at once almost certainly meant the top one, and there is
+     * nowhere in this GUI to ask which they meant without adding a display this block does not have.
+     */
+    @Override
+    public void onFilesDrop(List<Path> paths) {
+        if (paths.isEmpty()) {
+            return;
+        }
+        MapArtDropHandler.handleDrop(menu.pos(), paths.get(0), tiles, dither);
     }
 
     /** Reads the system clipboard into the URL box, replacing whatever is there. */

@@ -3,6 +3,7 @@ package com.kuronami.mapartmaker.gametest;
 import com.kuronami.mapartmaker.Constants;
 import com.kuronami.mapartmaker.block.MapArtMakerBlockEntity;
 import com.kuronami.mapartmaker.mapart.MapArtService;
+import com.kuronami.mapartmaker.network.MapArtTileAccumulator;
 import com.kuronami.mapartmaker.register.ModBlocks;
 
 import net.minecraft.core.BlockPos;
@@ -18,6 +19,7 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * In-game behaviour that unit tests cannot reach: real world, real block entity, real map data.
@@ -209,6 +211,51 @@ public class MapArtGameTests {
         }
         if (maker.blankCount() != 8) {
             helper.fail("a refused request must not spend blanks, found " + maker.blankCount(), POS);
+        }
+        helper.succeed();
+    }
+
+    /**
+     * The file-drop path's reassembly ({@code MapArtTileAccumulator.update}) feeding into the same
+     * store primitives the other tests above drive directly. Network packets are still not
+     * involved — {@code update} takes plain values, so this proves the accumulator's completed
+     * output stores correctly without needing a real connection.
+     */
+    @PrefixGameTestTemplate(false)
+    @GameTest(template = "empty3x3x3")
+    public static void uploadedTilesReassembleAndStore(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        MapArtMakerBlockEntity maker = place(helper);
+        maker.setItem(MapArtMakerBlockEntity.SLOT_BLANK, new ItemStack(Items.MAP, 4));
+
+        UUID uploader = UUID.randomUUID();
+        byte[][] expected = {colours(51), colours(52), colours(53), colours(54)};
+        MapArtTileAccumulator.UpdateResult result = null;
+        // Deliberately out of order: the accumulator places tiles by index, not arrival order.
+        int[] order = {2, 0, 3, 1};
+        for (int index : order) {
+            result = MapArtTileAccumulator.update(uploader, POS, 1, 2, index, false, expected[index]);
+        }
+        if (!(result instanceof MapArtTileAccumulator.UpdateResult.Complete complete)) {
+            helper.fail("four tiles of a 2x2 upload should complete the transfer", POS);
+            return;
+        }
+
+        List<ItemStack> maps = new ArrayList<>();
+        for (byte[] tileColours : complete.tiles()) {
+            maps.add(MapArtService.createMap(level, tileColours));
+        }
+        if (!maker.consumeBlanksAndStore(complete.tilesX(), complete.tilesY(), maps)) {
+            helper.fail("a completed 2x2 upload should store cleanly with four blanks available", POS);
+            return;
+        }
+
+        for (int i = 0; i < expected.length; i++) {
+            int slot = MapArtMakerBlockEntity.outputSlot(i % 2, i / 2);
+            MapItemSavedData data = MapItem.getSavedData(maker.getItem(slot), level);
+            if (data == null || !java.util.Arrays.equals(expected[i], data.colors)) {
+                helper.fail("tile " + i + " lost its colours between upload and storage", POS);
+            }
         }
         helper.succeed();
     }

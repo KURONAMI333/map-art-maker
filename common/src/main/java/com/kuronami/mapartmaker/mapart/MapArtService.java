@@ -28,6 +28,25 @@ public final class MapArtService {
      */
     public static List<ItemStack> createTiles(ServerLevel level, int[] pixels,
                                               int tilesX, int tilesY, boolean dither) {
+        byte[][] tiles = quantizeTiles(pixels, tilesX, tilesY, dither);
+        List<ItemStack> stacks = new ArrayList<>(tiles.length);
+        for (byte[] colours : tiles) {
+            stacks.add(createMap(level, colours));
+        }
+        return stacks;
+    }
+
+    /**
+     * Crops and quantises an already-scaled image into one colour-byte tile per grid cell,
+     * reading order ({@code ty*tilesX+tx}).
+     *
+     * <p>No Minecraft world types: this is the shared step between the URL path (this class,
+     * server side) and the file-drop path ({@code LocalMapArtEncoder}, client side), so the same
+     * image always lands on the same bytes regardless of how it arrived.
+     *
+     * @param pixels ARGB pixels already scaled to {@code tilesX*128} by {@code tilesY*128}
+     */
+    public static byte[][] quantizeTiles(int[] pixels, int tilesX, int tilesY, boolean dither) {
         if (tilesX <= 0 || tilesY <= 0) {
             throw new IllegalArgumentException("tile counts must be positive");
         }
@@ -39,15 +58,14 @@ public final class MapArtService {
         }
 
         ImageQuantizer quantizer = MapPalette.quantizer();
-        List<ItemStack> stacks = new ArrayList<>(tilesX * tilesY);
+        byte[][] tiles = new byte[tilesX * tilesY][];
         for (int ty = 0; ty < tilesY; ty++) {
             for (int tx = 0; tx < tilesX; tx++) {
                 int[] tile = crop(pixels, width, tx * TILE, ty * TILE);
-                byte[] colours = quantizer.quantize(tile, TILE, TILE, dither);
-                stacks.add(createMap(level, colours));
+                tiles[ty * tilesX + tx] = quantizer.quantize(tile, TILE, TILE, dither);
             }
         }
-        return stacks;
+        return tiles;
     }
 
     /** Registers a new map in the world and returns the item holding it. */

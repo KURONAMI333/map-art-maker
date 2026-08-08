@@ -15,5 +15,9 @@
   "message.map_art_maker.no_room": "Нет места для готовых карт.",
   "message.map_art_maker.done": "Создано карт: %s.",
   "message.map_art_maker.failed": "Не удалось создать карт-арт.",
-  "gui.map_art_maker.paste": "Вставить"
+  "gui.map_art_maker.paste": "Вставить",
+  "message.map_art_maker.drop_unreadable": "Не удалось прочитать этот файл.",
+  "message.map_art_maker.drop_too_large": "Этот файл больше 8 МБ.",
+  "message.map_art_maker.drop_not_image": "Этот файл не является изображением.",
+  "message.map_art_maker.upload_failed": "Загрузка не удалась. Попробуйте снова."
 }

@@ -15,5 +15,9 @@
   "message.map_art_maker.no_room": "No room for the finished maps.",
   "message.map_art_maker.done": "Created %s map(s).",
   "message.map_art_maker.failed": "Could not create the map art.",
-  "gui.map_art_maker.paste": "Paste"
+  "gui.map_art_maker.paste": "Paste",
+  "message.map_art_maker.drop_unreadable": "Could not read that file.",
+  "message.map_art_maker.drop_too_large": "That file is larger than 8 MB.",
+  "message.map_art_maker.drop_not_image": "That file is not an image.",
+  "message.map_art_maker.upload_failed": "The upload did not go through. Try again."
 }

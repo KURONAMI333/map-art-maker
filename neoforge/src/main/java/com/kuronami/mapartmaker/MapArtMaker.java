@@ -14,6 +14,7 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 @Mod(Constants.MOD_ID)
 public class MapArtMaker {
@@ -29,6 +30,10 @@ public class MapArtMaker {
         // through. The server revalidates every request regardless.
         eventBus.addListener((ModConfigEvent.Loading event) -> NeoForgeConfig.sync());
         eventBus.addListener((ModConfigEvent.Reloading event) -> NeoForgeConfig.sync());
+        // Game-bus lifecycle hooks for the file-drop tile accumulator: disconnect and the periodic
+        // timeout sweep. These fire on the game bus (NeoForge.EVENT_BUS), not the mod bus above.
+        NeoForge.EVENT_BUS.addListener(NeoForgePayloads::onPlayerLoggedOut);
+        NeoForge.EVENT_BUS.addListener(NeoForgePayloads::onServerTick);
         Constants.LOG.info("{} loaded", Constants.MOD_NAME);
     }
 

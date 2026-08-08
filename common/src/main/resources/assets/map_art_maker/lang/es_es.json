@@ -15,5 +15,9 @@
   "message.map_art_maker.no_room": "No hay espacio para los mapas terminados.",
   "message.map_art_maker.done": "Se crearon %s mapa(s).",
   "message.map_art_maker.failed": "No se pudo crear el arte del mapa.",
-  "gui.map_art_maker.paste": "Pegar"
+  "gui.map_art_maker.paste": "Pegar",
+  "message.map_art_maker.drop_unreadable": "No se pudo leer ese archivo.",
+  "message.map_art_maker.drop_too_large": "Ese archivo pesa más de 8 MB.",
+  "message.map_art_maker.drop_not_image": "Ese archivo no es una imagen.",
+  "message.map_art_maker.upload_failed": "La subida no se completó. Inténtalo de nuevo."
 }

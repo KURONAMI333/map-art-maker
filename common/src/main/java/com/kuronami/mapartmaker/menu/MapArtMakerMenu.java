@@ -1,9 +1,11 @@
 package com.kuronami.mapartmaker.menu;
 
 import com.kuronami.mapartmaker.block.MapArtMakerBlockEntity;
+import com.kuronami.mapartmaker.network.MapArtTileAccumulator;
 import com.kuronami.mapartmaker.register.ModMenus;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -111,6 +113,19 @@ public class MapArtMakerMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return container.stillValid(player);
+    }
+
+    /**
+     * Closing the GUI is one of the three ways an in-flight file-drop upload gets discarded (the
+     * others: disconnect, and a periodic timeout sweep) — otherwise a half-finished drop would sit
+     * in the server's accumulator until it happened to time out.
+     */
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        if (player instanceof ServerPlayer serverPlayer) {
+            MapArtTileAccumulator.discard(serverPlayer.getUUID());
+        }
     }
 
     @Override

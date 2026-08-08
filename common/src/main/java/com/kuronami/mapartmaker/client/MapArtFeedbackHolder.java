@@ -17,8 +17,13 @@ public final class MapArtFeedbackHolder {
     }
 
     public static void accept(MapArtFeedbackPayload payload) {
-        message = payload.message();
-        success = payload.success();
+        accept(payload.success(), payload.message());
+    }
+
+    /** For feedback that never reaches the server, such as a file-drop that failed to decode locally. */
+    public static void accept(boolean isSuccess, Component newMessage) {
+        message = newMessage;
+        success = isSuccess;
     }
 
     public static Component message() {
