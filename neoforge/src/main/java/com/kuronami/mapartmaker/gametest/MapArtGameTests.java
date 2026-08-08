@@ -234,7 +234,7 @@ public class MapArtGameTests {
         // Deliberately out of order: the accumulator places tiles by index, not arrival order.
         int[] order = {2, 0, 3, 1};
         for (int index : order) {
-            result = MapArtTileAccumulator.update(uploader, POS, 1, 2, index, false, expected[index]);
+            result = MapArtTileAccumulator.update(uploader, POS, level.dimension(), 1, 2, index, expected[index]);
         }
         if (!(result instanceof MapArtTileAccumulator.UpdateResult.Complete complete)) {
             helper.fail("four tiles of a 2x2 upload should complete the transfer", POS);

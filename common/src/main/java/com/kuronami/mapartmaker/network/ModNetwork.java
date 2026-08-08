@@ -9,15 +9,18 @@ import com.kuronami.mapartmaker.platform.Services;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
 
 /**
  * Loader-independent packet handling. Each loader registers the payload types and routes
@@ -41,6 +44,9 @@ public final class ModNetwork {
     /** Called on the server thread by each loader's receive hook. */
     public static void handleCreateMapArt(CreateMapArtPayload payload, ServerPlayer player) {
         ServerLevel level = player.serverLevel();
+        // Recorded now, at the request, and re-checked once the pixels are back: the download can
+        // take real time, and nothing stops the player stepping through a portal while it runs.
+        ResourceKey<Level> dimension = level.dimension();
 
         if (payload.tilesX() < 1 || payload.tilesY() < 1
                 || payload.tilesX() > ModConfig.maxTilesPerSide()
@@ -83,11 +89,12 @@ public final class ModNetwork {
                     }
                 }, DOWNLOADS)
                 .whenComplete((pixels, error) -> level.getServer().execute(
-                        () -> finish(player, payload, pixels, error)));
+                        () -> finish(player, payload, dimension, pixels, error)));
     }
 
     /** Back on the server thread: world state may only be touched here. */
-    private static void finish(ServerPlayer player, CreateMapArtPayload payload, int[] pixels, Throwable error) {
+    private static void finish(ServerPlayer player, CreateMapArtPayload payload, ResourceKey<Level> dimension,
+                                int[] pixels, Throwable error) {
         if (error != null) {
             Throwable cause = error instanceof java.util.concurrent.CompletionException ? error.getCause() : error;
             if (cause instanceof CompletionFailure failure) {
@@ -99,19 +106,36 @@ public final class ModNetwork {
             return;
         }
 
-        List<ItemStack> maps = MapArtService.createTiles(player.serverLevel(), pixels, payload.tilesX(), payload.tilesY(),
-                payload.dither());
-        storeAssembledMaps(player, payload.pos(), payload.tilesX(), payload.tilesY(), maps);
+        int tilesX = payload.tilesX();
+        int tilesY = payload.tilesY();
+        boolean dither = payload.dither();
+        storeAssembledMaps(player, payload.pos(), dimension, tilesX, tilesY,
+                level -> MapArtService.createTiles(level, pixels, tilesX, tilesY, dither));
     }
 
     /**
-     * Re-checks stock and stores already-built tiles. Shared by the URL path (above, after a
-     * download) and {@link MapArtTileAccumulator} (after a file-drop upload finishes reassembling):
-     * either way the pixels took real time to arrive, so the container may have changed since the
-     * request started.
+     * Re-checks stock and, only once every check has passed, builds and stores the tiles.
+     *
+     * <p>Shared by the URL path (above, after a download) and {@link MapArtTileAccumulator} (after
+     * a file-drop upload finishes reassembling): either way real time passed since the request
+     * started, so the container — and the player's dimension — may have changed. {@code mapSupplier}
+     * is deferred rather than a plain {@code List<ItemStack>} on purpose: minting a map id is
+     * permanent world state ({@link ServerLevel#getFreeMapId()} advances a saved counter,
+     * {@link ServerLevel#setMapData} writes a {@code map_N.dat} entry), so nothing may be minted
+     * until every rejection path below has had its say.
+     *
+     * @param dimension the dimension the request was made in; storing is refused if the player is
+     *                   no longer there, since {@code pos} would otherwise resolve to whatever
+     *                   block happens to sit at those coordinates in the new dimension
      */
-    static void storeAssembledMaps(ServerPlayer player, BlockPos pos, int tilesX, int tilesY, List<ItemStack> maps) {
+    static void storeAssembledMaps(ServerPlayer player, BlockPos pos, ResourceKey<Level> dimension,
+                                    int tilesX, int tilesY, Function<ServerLevel, List<ItemStack>> mapSupplier) {
         ServerLevel level = player.serverLevel();
+        if (!level.dimension().equals(dimension)) {
+            fail(player, "message.map_art_maker.no_block");
+            return;
+        }
+
         BlockEntity be = level.getBlockEntity(pos);
         if (!(be instanceof MapArtMakerBlockEntity maker)) {
             fail(player, "message.map_art_maker.no_block");
@@ -123,7 +147,16 @@ public final class ModNetwork {
             fail(player, "message.map_art_maker.need_maps", required);
             return;
         }
+        if (!maker.canPlace(tilesX, tilesY)) {
+            fail(player, "message.map_art_maker.no_room");
+            return;
+        }
+
+        List<ItemStack> maps = mapSupplier.apply(level);
         if (!maker.consumeBlanksAndStore(tilesX, tilesY, maps)) {
+            // Nothing else runs on the server thread between the canPlace check above and here, so
+            // this is unreachable in practice; kept as a hard backstop rather than trusting that
+            // invariant to hold forever.
             fail(player, "message.map_art_maker.no_room");
             return;
         }
