@@ -61,6 +61,8 @@ class MapArtMakerLayoutTest {
         List<Rect> out = new ArrayList<>();
         out.add(widget("url_box", MapArtMakerMenu.URL_BOX_X, MapArtMakerMenu.URL_BOX_Y,
                 MapArtMakerMenu.URL_BOX_WIDTH, MapArtMakerMenu.URL_BOX_HEIGHT));
+        out.add(widget("paste_button", MapArtMakerMenu.PASTE_BUTTON_X, MapArtMakerMenu.URL_BOX_Y,
+                MapArtMakerMenu.PASTE_BUTTON_WIDTH, MapArtMakerMenu.URL_BOX_HEIGHT));
         int i = 0;
         for (int x : new int[]{8, 62, 116}) {
             out.add(widget("button_" + i++, x, MapArtMakerMenu.BUTTON_Y,

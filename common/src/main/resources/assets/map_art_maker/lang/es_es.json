@@ -14,5 +14,6 @@
   "message.map_art_maker.need_maps": "Necesita %s mapas vacíos.",
   "message.map_art_maker.no_room": "No hay espacio para los mapas terminados.",
   "message.map_art_maker.done": "Se crearon %s mapa(s).",
-  "message.map_art_maker.failed": "No se pudo crear el arte del mapa."
+  "message.map_art_maker.failed": "No se pudo crear el arte del mapa.",
+  "gui.map_art_maker.paste": "Pegar"
 }

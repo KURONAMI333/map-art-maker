@@ -14,5 +14,6 @@
   "message.map_art_maker.need_maps": "Требуется пустых карт: %s.",
   "message.map_art_maker.no_room": "Нет места для готовых карт.",
   "message.map_art_maker.done": "Создано карт: %s.",
-  "message.map_art_maker.failed": "Не удалось создать карт-арт."
+  "message.map_art_maker.failed": "Не удалось создать карт-арт.",
+  "gui.map_art_maker.paste": "Вставить"
 }

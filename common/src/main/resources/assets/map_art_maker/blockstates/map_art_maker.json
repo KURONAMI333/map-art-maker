@@ -1,5 +1,19 @@
 {
   "variants": {
-    "": { "model": "map_art_maker:block/map_art_maker" }
+    "facing=north": {
+      "model": "map_art_maker:block/map_art_maker"
+    },
+    "facing=east": {
+      "model": "map_art_maker:block/map_art_maker",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "map_art_maker:block/map_art_maker",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "map_art_maker:block/map_art_maker",
+      "y": 270
+    }
   }
 }

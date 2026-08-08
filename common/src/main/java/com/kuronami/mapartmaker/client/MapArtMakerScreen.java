@@ -6,6 +6,7 @@ import com.kuronami.mapartmaker.network.CreateMapArtPayload;
 import com.kuronami.mapartmaker.config.ModConfig;
 import com.kuronami.mapartmaker.platform.Services;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -13,6 +14,8 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+
+import org.lwjgl.glfw.GLFW;
 
 /**
  * 貼る・押す・待つの3操作しか無い。サイズは1辺のタイル数で、実際の画素は 128×タイル数。
@@ -44,6 +47,15 @@ public class MapArtMakerScreen extends AbstractContainerScreen<MapArtMakerMenu> 
         urlBox.setMaxLength(CreateMapArtPayload.MAX_URL_LENGTH);
         urlBox.setHint(Component.translatable("gui.map_art_maker.url_hint"));
         addRenderableWidget(urlBox);
+        // The box is the first thing anyone touches, so it starts focused: otherwise the paste
+        // shortcut silently does nothing until the box happens to be clicked.
+        setInitialFocus(urlBox);
+
+        addRenderableWidget(Button.builder(Component.translatable("gui.map_art_maker.paste"),
+                        button -> pasteFromClipboard())
+                .bounds(leftPos + MapArtMakerMenu.PASTE_BUTTON_X, topPos + MapArtMakerMenu.URL_BOX_Y,
+                        MapArtMakerMenu.PASTE_BUTTON_WIDTH, MapArtMakerMenu.URL_BOX_HEIGHT)
+                .build());
 
         int buttonY = topPos + MapArtMakerMenu.BUTTON_Y;
         int buttonWidth = MapArtMakerMenu.BUTTON_WIDTH;
@@ -94,11 +106,24 @@ public class MapArtMakerScreen extends AbstractContainerScreen<MapArtMakerMenu> 
         }
     }
 
+    /** Reads the system clipboard into the URL box, replacing whatever is there. */
+    private void pasteFromClipboard() {
+        String clipboard = Minecraft.getInstance().keyboardHandler.getClipboard();
+        if (clipboard == null || clipboard.isBlank()) {
+            return;
+        }
+        urlBox.setValue(clipboard.trim());
+        setFocused(urlBox);
+    }
+
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        // The URL box must keep focus for typing; otherwise "e" closes the screen mid-paste.
-        if (urlBox != null && urlBox.isFocused() && keyCode != 256) {
-            return urlBox.keyPressed(keyCode, scanCode, modifiers) || super.keyPressed(keyCode, scanCode, modifiers);
+        // While the box has focus every key belongs to it, escape aside. Falling through to the
+        // container screen would let the inventory key close the GUI mid-URL, and "e" appears in
+        // most links.
+        if (urlBox != null && urlBox.isFocused() && keyCode != GLFW.GLFW_KEY_ESCAPE) {
+            urlBox.keyPressed(keyCode, scanCode, modifiers);
+            return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }

@@ -14,5 +14,6 @@
   "message.map_art_maker.need_maps": "Needs %s empty maps.",
   "message.map_art_maker.no_room": "No room for the finished maps.",
   "message.map_art_maker.done": "Created %s map(s).",
-  "message.map_art_maker.failed": "Could not create the map art."
+  "message.map_art_maker.failed": "Could not create the map art.",
+  "gui.map_art_maker.paste": "Paste"
 }

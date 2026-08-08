@@ -42,8 +42,13 @@ public class MapArtMakerMenu extends AbstractContainerMenu {
 
     public static final int URL_BOX_X = 8;
     public static final int URL_BOX_Y = 20;
-    public static final int URL_BOX_WIDTH = 160;
+    /** Narrowed to leave room for the paste button beside it. */
+    public static final int URL_BOX_WIDTH = 124;
     public static final int URL_BOX_HEIGHT = 16;
+
+    /** Pasting a link is the normal way in, so it gets a button rather than only a shortcut. */
+    public static final int PASTE_BUTTON_X = 134;
+    public static final int PASTE_BUTTON_WIDTH = 34;
 
     public static final int BUTTON_Y = 40;
     public static final int BUTTON_WIDTH = 52;

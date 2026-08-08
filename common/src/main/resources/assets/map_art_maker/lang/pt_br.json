@@ -14,5 +14,6 @@
   "message.map_art_maker.need_maps": "Precisa de %s mapas vazios.",
   "message.map_art_maker.no_room": "Sem espaço para os mapas prontos.",
   "message.map_art_maker.done": "%s mapa(s) criado(s).",
-  "message.map_art_maker.failed": "Não foi possível criar a arte de mapa."
+  "message.map_art_maker.failed": "Não foi possível criar a arte de mapa.",
+  "gui.map_art_maker.paste": "Colar"
 }

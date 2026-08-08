@@ -14,5 +14,6 @@
   "message.map_art_maker.need_maps": "Nécessite %s cartes vierges.",
   "message.map_art_maker.no_room": "Pas de place pour les cartes terminées.",
   "message.map_art_maker.done": "%s carte(s) créée(s).",
-  "message.map_art_maker.failed": "Impossible de créer l'art de carte."
+  "message.map_art_maker.failed": "Impossible de créer l'art de carte.",
+  "gui.map_art_maker.paste": "Coller"
 }
