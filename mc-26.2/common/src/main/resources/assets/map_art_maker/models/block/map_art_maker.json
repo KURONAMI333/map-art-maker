@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "map_art_maker:block/map_art_maker_front",
+    "down": "map_art_maker:block/map_art_maker_bottom",
+    "up": "map_art_maker:block/map_art_maker_top",
+    "north": "map_art_maker:block/map_art_maker_front",
+    "east": "map_art_maker:block/map_art_maker_side",
+    "south": "map_art_maker:block/map_art_maker_side",
+    "west": "map_art_maker:block/map_art_maker_side"
+  }
+}

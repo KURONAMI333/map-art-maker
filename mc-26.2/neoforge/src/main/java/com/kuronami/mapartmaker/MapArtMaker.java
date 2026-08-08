@@ -1,0 +1,66 @@
+package com.kuronami.mapartmaker;
+
+import com.kuronami.mapartmaker.client.MapArtMakerScreen;
+import com.kuronami.mapartmaker.config.NeoForgeConfig;
+import com.kuronami.mapartmaker.gametest.MapArtGameTestRegistration;
+import com.kuronami.mapartmaker.network.NeoForgePayloads;
+import com.kuronami.mapartmaker.platform.registry.NeoForgeRegistrationProvider;
+import com.kuronami.mapartmaker.register.ModCreativeTab;
+import com.kuronami.mapartmaker.register.ModMenus;
+import com.kuronami.mapartmaker.register.ModRegistries;
+
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.event.config.ModConfigEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+
+@Mod(Constants.MOD_ID)
+public class MapArtMaker {
+
+    public MapArtMaker(IEventBus eventBus, ModContainer container) {
+        // init() runs the holders' static initialisers, which is what creates the deferred
+        // registers; they do nothing until they are bound to the bus, so the order matters.
+        ModRegistries.init();
+        NeoForgeRegistrationProvider.registerAll(eventBus);
+        eventBus.addListener(NeoForgePayloads::register);
+        // 26.2 の CreativeModeTab$Output は protected なので common では中身を書けない。
+        // タブの identity だけ common が持ち、中身はこのイベントで流す。
+        eventBus.addListener(MapArtMaker::buildCreativeTab);
+        // 26.x の GameTest は GameTestInstance をレジストリへ登録する方式（アノテーション廃止）。
+        eventBus.addListener(MapArtGameTestRegistration::register);
+        container.registerConfig(ModConfig.Type.COMMON, NeoForgeConfig.SPEC);
+        // COMMON rather than SERVER so the client knows the tile limit its size button cycles
+        // through. The server revalidates every request regardless.
+        eventBus.addListener((ModConfigEvent.Loading event) -> NeoForgeConfig.sync());
+        eventBus.addListener((ModConfigEvent.Reloading event) -> NeoForgeConfig.sync());
+        // Game-bus lifecycle hooks for the file-drop tile accumulator: disconnect and the periodic
+        // timeout sweep. These fire on the game bus (NeoForge.EVENT_BUS), not the mod bus above.
+        NeoForge.EVENT_BUS.addListener(NeoForgePayloads::onPlayerLoggedOut);
+        NeoForge.EVENT_BUS.addListener(NeoForgePayloads::onServerTick);
+        Constants.LOG.info("{} loaded", Constants.MOD_NAME);
+    }
+
+    private static void buildCreativeTab(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey().equals(ModCreativeTab.TAB_KEY)) {
+            ModCreativeTab.contents().forEach(event::accept);
+        }
+    }
+
+    /** client 専用の配線。dedicated server では never-load。 */
+    @Mod(value = Constants.MOD_ID, dist = Dist.CLIENT)
+    public static class Client {
+
+        public Client(IEventBus eventBus) {
+            eventBus.addListener(Client::registerScreens);
+        }
+
+        private static void registerScreens(RegisterMenuScreensEvent event) {
+            event.register(ModMenus.MAP_ART_MAKER.get(), MapArtMakerScreen::new);
+        }
+    }
+}

@@ -1,0 +1,23 @@
+{
+  "block.map_art_maker.map_art_maker": "Map Art Maker",
+  "itemGroup.map_art_maker": "Map Art Maker",
+  "container.map_art_maker": "Map Art Maker",
+  "gui.map_art_maker.url": "URL da imagem",
+  "gui.map_art_maker.url_hint": "Cole um link de imagem",
+  "gui.map_art_maker.size": "%s x %s",
+  "gui.map_art_maker.dither_on": "Pontilhado: ligado",
+  "gui.map_art_maker.dither_off": "Pontilhado: desligado",
+  "gui.map_art_maker.create": "Criar",
+  "message.map_art_maker.bad_size": "Esse tamanho não é permitido.",
+  "message.map_art_maker.too_far": "Você está longe demais.",
+  "message.map_art_maker.no_block": "O bloco não está mais lá.",
+  "message.map_art_maker.need_maps": "Precisa de %s mapas vazios.",
+  "message.map_art_maker.no_room": "Sem espaço para os mapas prontos.",
+  "message.map_art_maker.done": "%s mapa(s) criado(s).",
+  "message.map_art_maker.failed": "Não foi possível criar a arte de mapa.",
+  "gui.map_art_maker.paste": "Colar",
+  "message.map_art_maker.drop_unreadable": "Não foi possível ler esse arquivo.",
+  "message.map_art_maker.drop_too_large": "Esse arquivo tem mais de 8 MB.",
+  "message.map_art_maker.drop_not_image": "Esse arquivo não é uma imagem.",
+  "message.map_art_maker.upload_failed": "O envio falhou. Tente novamente."
+}
