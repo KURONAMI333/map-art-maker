@@ -84,8 +84,25 @@ public class MapArtNetworkGameTests {
         try {
             ModNetwork.storeAssembledMaps(player, pos, dimension, tilesX, tilesY, supplier);
         } catch (RuntimeException e) {
-            // Feedback-send artifact of the mock connection; see the javadoc above.
+            if (!thrownByFeedbackSend(e)) {
+                throw e;
+            }
         }
+    }
+
+    /**
+     * Only the feedback send is excused. Swallowing every {@code RuntimeException} would let a
+     * branch that blows up before reaching its decision pass the "nothing was minted" assertions
+     * for the wrong reason, since an early throw leaves the supplier uncalled and the id counter
+     * still.
+     */
+    private static boolean thrownByFeedbackSend(RuntimeException e) {
+        for (StackTraceElement frame : e.getStackTrace()) {
+            if (ModNetwork.class.getName().equals(frame.getClassName()) && "send".equals(frame.getMethodName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void assertNoMapMinted(GameTestHelper helper, AtomicBoolean supplierCalled,
