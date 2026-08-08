@@ -14,5 +14,6 @@
   "message.map_art_maker.need_maps": "Benötigt %s leere Karten.",
   "message.map_art_maker.no_room": "Kein Platz für die fertigen Karten.",
   "message.map_art_maker.done": "%s Karte(n) erstellt.",
-  "message.map_art_maker.failed": "Kartenkunst konnte nicht erstellt werden."
+  "message.map_art_maker.failed": "Kartenkunst konnte nicht erstellt werden.",
+  "gui.map_art_maker.paste": "Einf."
 }

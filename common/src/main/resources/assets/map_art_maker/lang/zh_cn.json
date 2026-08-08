@@ -14,5 +14,6 @@
   "message.map_art_maker.need_maps": "需要 %s 张空地图。",
   "message.map_art_maker.no_room": "没有空间放置完成的地图。",
   "message.map_art_maker.done": "已制作 %s 张地图。",
-  "message.map_art_maker.failed": "无法制作地图画。"
+  "message.map_art_maker.failed": "无法制作地图画。",
+  "gui.map_art_maker.paste": "粘贴"
 }

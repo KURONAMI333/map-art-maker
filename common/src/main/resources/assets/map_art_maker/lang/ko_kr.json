@@ -14,5 +14,6 @@
   "message.map_art_maker.need_maps": "빈 지도가 %s장 필요합니다.",
   "message.map_art_maker.no_room": "완성된 지도를 넣을 공간이 없습니다.",
   "message.map_art_maker.done": "지도 %s장을 만들었습니다.",
-  "message.map_art_maker.failed": "지도 아트를 만들 수 없습니다."
+  "message.map_art_maker.failed": "지도 아트를 만들 수 없습니다.",
+  "gui.map_art_maker.paste": "붙여넣기"
 }
