@@ -15,5 +15,9 @@
   "message.map_art_maker.no_room": "Kein Platz für die fertigen Karten.",
   "message.map_art_maker.done": "%s Karte(n) erstellt.",
   "message.map_art_maker.failed": "Kartenkunst konnte nicht erstellt werden.",
-  "gui.map_art_maker.paste": "Einf."
+  "gui.map_art_maker.paste": "Einf.",
+  "message.map_art_maker.drop_unreadable": "Diese Datei konnte nicht gelesen werden.",
+  "message.map_art_maker.drop_too_large": "Diese Datei ist größer als 8 MB.",
+  "message.map_art_maker.drop_not_image": "Diese Datei ist kein Bild.",
+  "message.map_art_maker.upload_failed": "Der Upload ist fehlgeschlagen. Versuche es erneut."
 }

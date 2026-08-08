@@ -15,5 +15,9 @@
   "message.map_art_maker.no_room": "Pas de place pour les cartes terminées.",
   "message.map_art_maker.done": "%s carte(s) créée(s).",
   "message.map_art_maker.failed": "Impossible de créer l'art de carte.",
-  "gui.map_art_maker.paste": "Coller"
+  "gui.map_art_maker.paste": "Coller",
+  "message.map_art_maker.drop_unreadable": "Impossible de lire ce fichier.",
+  "message.map_art_maker.drop_too_large": "Ce fichier dépasse 8 Mo.",
+  "message.map_art_maker.drop_not_image": "Ce fichier n'est pas une image.",
+  "message.map_art_maker.upload_failed": "L'envoi a échoué. Réessayez."
 }

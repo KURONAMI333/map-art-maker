@@ -15,5 +15,9 @@
   "message.map_art_maker.no_room": "Sem espaço para os mapas prontos.",
   "message.map_art_maker.done": "%s mapa(s) criado(s).",
   "message.map_art_maker.failed": "Não foi possível criar a arte de mapa.",
-  "gui.map_art_maker.paste": "Colar"
+  "gui.map_art_maker.paste": "Colar",
+  "message.map_art_maker.drop_unreadable": "Não foi possível ler esse arquivo.",
+  "message.map_art_maker.drop_too_large": "Esse arquivo tem mais de 8 MB.",
+  "message.map_art_maker.drop_not_image": "Esse arquivo não é uma imagem.",
+  "message.map_art_maker.upload_failed": "O envio falhou. Tente novamente."
 }

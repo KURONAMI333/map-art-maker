@@ -127,7 +127,7 @@ public final class ImageFetcher {
 
     private static BufferedImage decode(byte[] body) throws FetchException {
         try {
-            BufferedImage image = ImageIO.read(new ByteArrayInputStream(body));
+            BufferedImage image = decodeRaw(body);
             if (image == null) {
                 throw new FetchException("that link is not an image file");
             }
@@ -135,6 +135,16 @@ public final class ImageFetcher {
         } catch (IOException e) {
             throw new FetchException("that image could not be read");
         }
+    }
+
+    /**
+     * The bare decode call, shared with the file-drop path ({@code LocalMapArtEncoder}) so a
+     * dropped file and a URL to the identical image decode through the exact same call.
+     *
+     * @return null if the bytes are not a format {@link ImageIO} recognises
+     */
+    static BufferedImage decodeRaw(byte[] body) throws IOException {
+        return ImageIO.read(new ByteArrayInputStream(body));
     }
 
     /** Bilinear downscale into an ARGB array. Package-private so tests can drive it without the network. */
