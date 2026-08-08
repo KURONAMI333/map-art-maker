@@ -23,3 +23,9 @@ eclipse
 run
 runs
 branding/__pycache__/
+
+# 作業文書（統括↔executor・公開 repo に入れない）
+GAP_LOG.md
+DESIGN_COMPILE.md
+_handoff/
+_docs/gui_collision.png
