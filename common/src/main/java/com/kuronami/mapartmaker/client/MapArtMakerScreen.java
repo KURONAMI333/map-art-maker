@@ -25,6 +25,13 @@ public class MapArtMakerScreen extends AbstractContainerScreen<MapArtMakerMenu> 
     private static final ResourceLocation BACKGROUND =
             ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/map_art_maker.png");
 
+    /** The cartography table's parchment, borrowed from vanilla's sprite atlas at draw time. */
+    private static final ResourceLocation MAP_SHEET =
+            ResourceLocation.withDefaultNamespace("container/cartography_table/map");
+
+    /** Vanilla's slot well, so the nine cells on the sheet match every other slot in the game. */
+    private static final ResourceLocation SLOT = ResourceLocation.withDefaultNamespace("container/slot");
+
     private EditBox urlBox;
     private int tiles = 1;
     private boolean dither = true;
@@ -94,6 +101,21 @@ public class MapArtMakerScreen extends AbstractContainerScreen<MapArtMakerMenu> 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         graphics.blit(BACKGROUND, leftPos, topPos, 0, 0, imageWidth, imageHeight);
+        // Vanilla's own parchment, drawn from the game's sprite atlas rather than copied into our
+        // texture: identical to the cartography table by construction, and nothing of Mojang's is
+        // redistributed because the sprite never leaves the game.
+        graphics.blitSprite(MAP_SHEET,
+                leftPos + MapArtMakerMenu.SHEET_X, topPos + MapArtMakerMenu.SHEET_Y,
+                MapArtMakerMenu.SHEET_SIZE, MapArtMakerMenu.SHEET_SIZE);
+        // The sheet covers the output area, so the nine wells go back on top of it.
+        for (int row = 0; row < 3; row++) {
+            for (int column = 0; column < 3; column++) {
+                graphics.blitSprite(SLOT,
+                        leftPos + MapArtMakerMenu.OUTPUT_X + column * MapArtMakerMenu.SLOT_PITCH - 1,
+                        topPos + MapArtMakerMenu.OUTPUT_Y + row * MapArtMakerMenu.SLOT_PITCH - 1,
+                        18, 18);
+            }
+        }
     }
 
     @Override

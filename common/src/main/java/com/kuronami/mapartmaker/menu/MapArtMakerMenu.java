@@ -56,6 +56,11 @@ public class MapArtMakerMenu extends AbstractContainerMenu {
 
     public static final int FEEDBACK_Y = 60;
 
+    /** Vanilla's map sprite is 66x66; centring it on the output grid leaves a 6px paper margin. */
+    public static final int SHEET_SIZE = 66;
+    public static final int SHEET_X = 91;
+    public static final int SHEET_Y = 67;
+
     public static final int BLANK_SLOT_X = 26;
     public static final int BLANK_SLOT_Y = 92;
     public static final int OUTPUT_X = 98;

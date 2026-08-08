@@ -114,7 +114,7 @@ public final class ModNetwork {
 
         List<ItemStack> maps = MapArtService.createTiles(level, pixels, payload.tilesX(), payload.tilesY(),
                 payload.dither());
-        if (!maker.consumeBlanksAndStore(required, maps)) {
+        if (!maker.consumeBlanksAndStore(payload.tilesX(), payload.tilesY(), maps)) {
             fail(player, "message.map_art_maker.no_room");
             return;
         }
