@@ -44,7 +44,7 @@ public final class MapArtDropHandler {
         CompletableFuture
                 .supplyAsync(() -> readAndEncode(path, tiles, dither), ENCODE)
                 .whenComplete((tileBytes, error) -> Minecraft.getInstance().execute(
-                        () -> finish(pos, tiles, dither, tileBytes, error)));
+                        () -> finish(pos, tiles, tileBytes, error)));
     }
 
     private static byte[][] readAndEncode(Path path, int tiles, boolean dither) {
@@ -65,7 +65,7 @@ public final class MapArtDropHandler {
         }
     }
 
-    private static void finish(BlockPos pos, int tiles, boolean dither, byte[][] tileBytes, Throwable error) {
+    private static void finish(BlockPos pos, int tiles, byte[][] tileBytes, Throwable error) {
         if (error != null) {
             Throwable cause = error instanceof CompletionException ? error.getCause() : error;
             String key = cause instanceof StageFailure failure
@@ -75,9 +75,16 @@ public final class MapArtDropHandler {
             return;
         }
 
+        // The encode ran on a background thread; the player may have left the world (or the
+        // server) while it was in flight. Sending now would throw (Fabric: IllegalStateException,
+        // NeoForge: NPE deep in its channel lookup) with nobody left to show feedback to anyway.
+        if (Minecraft.getInstance().getConnection() == null) {
+            return;
+        }
+
         int transferId = NEXT_TRANSFER_ID.incrementAndGet();
         for (int i = 0; i < tileBytes.length; i++) {
-            Services.NETWORK.sendToServer(new MapArtTilePayload(pos, transferId, tiles, i, dither, tileBytes[i]));
+            Services.NETWORK.sendToServer(new MapArtTilePayload(pos, transferId, tiles, i, tileBytes[i]));
         }
     }
 

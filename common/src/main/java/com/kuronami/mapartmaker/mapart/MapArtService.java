@@ -29,6 +29,11 @@ public final class MapArtService {
     public static List<ItemStack> createTiles(ServerLevel level, int[] pixels,
                                               int tilesX, int tilesY, boolean dither) {
         byte[][] tiles = quantizeTiles(pixels, tilesX, tilesY, dither);
+        return createMaps(level, tiles);
+    }
+
+    /** Registers one map per already-quantised tile, reading order. */
+    public static List<ItemStack> createMaps(ServerLevel level, byte[][] tiles) {
         List<ItemStack> stacks = new ArrayList<>(tiles.length);
         for (byte[] colours : tiles) {
             stacks.add(createMap(level, colours));

@@ -18,7 +18,7 @@ class TileTransferStateTest {
 
     @Test
     void splitThenReassembleIsByteForByteIdentical() {
-        TileTransferState state = new TileTransferState(1, 2, 2, false);
+        TileTransferState state = new TileTransferState(1, 2, 2);
         byte[][] expected = {tileBytes(1), tileBytes(2), tileBytes(3), tileBytes(4)};
 
         for (int i = 0; i < expected.length; i++) {
@@ -35,7 +35,7 @@ class TileTransferStateTest {
 
     @Test
     void tilesCanArriveOutOfOrder() {
-        TileTransferState state = new TileTransferState(1, 2, 2, false);
+        TileTransferState state = new TileTransferState(1, 2, 2);
         byte[] tile3 = tileBytes(30);
         byte[] tile0 = tileBytes(0);
 
@@ -50,32 +50,32 @@ class TileTransferStateTest {
 
     @Test
     void rejectsNegativeTileIndex() {
-        TileTransferState state = new TileTransferState(1, 2, 2, false);
+        TileTransferState state = new TileTransferState(1, 2, 2);
         assertThrows(IllegalArgumentException.class, () -> state.admit(-1, tileBytes(1)));
     }
 
     @Test
     void rejectsTileIndexAtOrPastTheCount() {
-        TileTransferState state = new TileTransferState(1, 2, 2, false);
+        TileTransferState state = new TileTransferState(1, 2, 2);
         assertThrows(IllegalArgumentException.class, () -> state.admit(4, tileBytes(1)));
     }
 
     @Test
     void rejectsTheWrongColourByteCount() {
-        TileTransferState state = new TileTransferState(1, 1, 1, false);
+        TileTransferState state = new TileTransferState(1, 1, 1);
         assertThrows(IllegalArgumentException.class, () -> state.admit(0, new byte[100]));
     }
 
     @Test
     void rejectsADuplicateTileIndex() {
-        TileTransferState state = new TileTransferState(1, 1, 1, false);
+        TileTransferState state = new TileTransferState(1, 1, 1);
         state.admit(0, tileBytes(9));
         assertThrows(IllegalStateException.class, () -> state.admit(0, tileBytes(9)));
     }
 
     @Test
     void isCompleteOnlyOnceEveryTileArrived() {
-        TileTransferState state = new TileTransferState(1, 1, 3, false);
+        TileTransferState state = new TileTransferState(1, 1, 3);
         assertFalse(state.isComplete());
         state.admit(0, tileBytes(1));
         assertFalse(state.isComplete());
@@ -87,7 +87,7 @@ class TileTransferStateTest {
 
     @Test
     void rejectsNonPositiveTileCounts() {
-        assertThrows(IllegalArgumentException.class, () -> new TileTransferState(1, 0, 1, false));
-        assertThrows(IllegalArgumentException.class, () -> new TileTransferState(1, 1, -1, false));
+        assertThrows(IllegalArgumentException.class, () -> new TileTransferState(1, 0, 1));
+        assertThrows(IllegalArgumentException.class, () -> new TileTransferState(1, 1, -1));
     }
 }

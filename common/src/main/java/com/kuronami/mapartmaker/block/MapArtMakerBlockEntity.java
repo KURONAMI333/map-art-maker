@@ -61,10 +61,36 @@ public class MapArtMakerBlockEntity extends BlockEntity implements WorldlyContai
      * @param results one tile per grid cell in reading order, {@code tilesX * tilesY} of them
      */
     public boolean consumeBlanksAndStore(int tilesX, int tilesY, java.util.List<ItemStack> results) {
+        if (!canAccept(tilesX, tilesY, results.size())) {
+            return false;
+        }
+
+        int required = tilesX * tilesY;
+        items.get(SLOT_BLANK).shrink(required);
+        for (int y = 0; y < tilesY; y++) {
+            for (int x = 0; x < tilesX; x++) {
+                items.set(outputSlot(x, y), results.get(y * tilesX + x));
+            }
+        }
+        setChanged();
+        return true;
+    }
+
+    /**
+     * Non-mutating version of the check {@link #consumeBlanksAndStore} performs, so callers can
+     * confirm a grid will fit <em>before</em> paying the cost of building the tiles that would go
+     * in it (map ids are permanent world state the moment they are minted, so nothing should be
+     * built for a request that is going to be refused anyway).
+     */
+    public boolean canPlace(int tilesX, int tilesY) {
+        return canAccept(tilesX, tilesY, tilesX * tilesY);
+    }
+
+    private boolean canAccept(int tilesX, int tilesY, int resultsSize) {
         int required = tilesX * tilesY;
         if (tilesX <= 0 || tilesY <= 0
                 || tilesX > OUTPUT_GRID_SIDE || tilesY > OUTPUT_GRID_SIDE
-                || results.size() != required) {
+                || resultsSize != required) {
             return false;
         }
         if (blankCount() < required) {
@@ -77,14 +103,6 @@ public class MapArtMakerBlockEntity extends BlockEntity implements WorldlyContai
                 }
             }
         }
-
-        items.get(SLOT_BLANK).shrink(required);
-        for (int y = 0; y < tilesY; y++) {
-            for (int x = 0; x < tilesX; x++) {
-                items.set(outputSlot(x, y), results.get(y * tilesX + x));
-            }
-        }
-        setChanged();
         return true;
     }
 

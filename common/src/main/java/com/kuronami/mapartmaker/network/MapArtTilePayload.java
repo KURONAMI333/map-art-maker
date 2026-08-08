@@ -19,7 +19,7 @@ import net.minecraft.resources.ResourceLocation;
  * {@code size} 1本にまとめている（{@link StreamCodec#composite} は6フィールドが上限のため）。
  */
 public record MapArtTilePayload(BlockPos pos, int transferId, int size, int tileIndex,
-                                 boolean dither, byte[] colours) implements CustomPacketPayload {
+                                 byte[] colours) implements CustomPacketPayload {
 
     /** {@code MapArtService.TILE * MapArtService.TILE}. 地図1枚分の色バイト数。 */
     public static final int TILE_BYTES = MapArtService.TILE * MapArtService.TILE;
@@ -33,7 +33,6 @@ public record MapArtTilePayload(BlockPos pos, int transferId, int size, int tile
                     ByteBufCodecs.VAR_INT, MapArtTilePayload::transferId,
                     ByteBufCodecs.VAR_INT, MapArtTilePayload::size,
                     ByteBufCodecs.VAR_INT, MapArtTilePayload::tileIndex,
-                    ByteBufCodecs.BOOL, MapArtTilePayload::dither,
                     ByteBufCodecs.byteArray(TILE_BYTES), MapArtTilePayload::colours,
                     MapArtTilePayload::new);
 

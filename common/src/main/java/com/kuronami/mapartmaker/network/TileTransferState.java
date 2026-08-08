@@ -13,19 +13,17 @@ final class TileTransferState {
     private final int transferId;
     private final int tilesX;
     private final int tilesY;
-    private final boolean dither;
     private final byte[][] tiles;
     private final boolean[] received;
     private int receivedCount;
 
-    TileTransferState(int transferId, int tilesX, int tilesY, boolean dither) {
+    TileTransferState(int transferId, int tilesX, int tilesY) {
         if (tilesX <= 0 || tilesY <= 0) {
             throw new IllegalArgumentException("tile counts must be positive");
         }
         this.transferId = transferId;
         this.tilesX = tilesX;
         this.tilesY = tilesY;
-        this.dither = dither;
         int count = tilesX * tilesY;
         this.tiles = new byte[count][];
         this.received = new boolean[count];
@@ -41,10 +39,6 @@ final class TileTransferState {
 
     int tilesY() {
         return tilesY;
-    }
-
-    boolean dither() {
-        return dither;
     }
 
     int tileCount() {
