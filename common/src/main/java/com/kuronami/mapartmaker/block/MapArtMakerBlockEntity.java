@@ -43,19 +43,45 @@ public class MapArtMakerBlockEntity extends BlockEntity implements WorldlyContai
         return items.get(SLOT_BLANK).getCount();
     }
 
-    /** Consumes blanks and stores results. Returns false when there is not enough room or stock. */
-    public boolean consumeBlanksAndStore(int required, java.util.List<ItemStack> results) {
-        if (required <= 0 || results.size() != required) {
+    /** Output slots are a 3x3 grid, so a tile's position in the picture picks its slot. */
+    public static final int OUTPUT_GRID_SIDE = 3;
+
+    /** The slot a tile at column {@code x}, row {@code y} of the picture belongs in. */
+    public static int outputSlot(int x, int y) {
+        return 1 + y * OUTPUT_GRID_SIDE + x;
+    }
+
+    /**
+     * Consumes blanks and stores the finished tiles where they belong.
+     *
+     * <p>Tiles keep their position: the top-right piece of the picture goes in the top-right slot,
+     * so a 2x2 fills the top-left corner of the grid rather than running along the first four
+     * slots. That means the target slots specifically have to be free, not just any four of them.
+     *
+     * @param results one tile per grid cell in reading order, {@code tilesX * tilesY} of them
+     */
+    public boolean consumeBlanksAndStore(int tilesX, int tilesY, java.util.List<ItemStack> results) {
+        int required = tilesX * tilesY;
+        if (tilesX <= 0 || tilesY <= 0
+                || tilesX > OUTPUT_GRID_SIDE || tilesY > OUTPUT_GRID_SIDE
+                || results.size() != required) {
             return false;
         }
-        if (blankCount() < required || freeOutputSlots() < required) {
+        if (blankCount() < required) {
             return false;
         }
+        for (int y = 0; y < tilesY; y++) {
+            for (int x = 0; x < tilesX; x++) {
+                if (!items.get(outputSlot(x, y)).isEmpty()) {
+                    return false;
+                }
+            }
+        }
+
         items.get(SLOT_BLANK).shrink(required);
-        int placed = 0;
-        for (int slot = 1; slot < SIZE && placed < results.size(); slot++) {
-            if (items.get(slot).isEmpty()) {
-                items.set(slot, results.get(placed++));
+        for (int y = 0; y < tilesY; y++) {
+            for (int x = 0; x < tilesX; x++) {
+                items.set(outputSlot(x, y), results.get(y * tilesX + x));
             }
         }
         setChanged();

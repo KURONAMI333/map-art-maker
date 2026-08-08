@@ -74,7 +74,7 @@ public class MapArtGameTests {
         List<ItemStack> results = new ArrayList<>();
         results.add(MapArtService.createMap(level, expected));
 
-        if (!maker.consumeBlanksAndStore(1, results)) {
+        if (!maker.consumeBlanksAndStore(1, 1, results)) {
             helper.fail("storing one tile should succeed with one blank map available", POS);
         }
 
@@ -103,14 +103,66 @@ public class MapArtGameTests {
         for (int i = 0; i < 3; i++) {
             results.add(MapArtService.createMap(level, colours(i)));
         }
-        if (!maker.consumeBlanksAndStore(3, results)) {
-            helper.fail("three tiles should fit with four blanks and nine free slots", POS);
+        if (!maker.consumeBlanksAndStore(3, 1, results)) {
+            helper.fail("a 3x1 strip should fit with four blanks and an empty grid", POS);
         }
         if (maker.blankCount() != 1) {
             helper.fail("expected one blank left, found " + maker.blankCount(), POS);
         }
         if (maker.freeOutputSlots() != MapArtMakerBlockEntity.OUTPUT_SLOTS - 3) {
             helper.fail("expected six free output slots, found " + maker.freeOutputSlots(), POS);
+        }
+        helper.succeed();
+    }
+
+    /** A finished map must never be repainted with real terrain, which only the lock prevents. */
+    @PrefixGameTestTemplate(false)
+    @GameTest(template = "empty3x3x3")
+    public static void finishedMapIsLocked(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        ItemStack map = MapArtService.createMap(level, colours(3));
+        MapItemSavedData data = MapItem.getSavedData(map, level);
+        if (data == null) {
+            helper.fail("no map data on a freshly created tile", POS);
+        } else if (!data.locked) {
+            helper.fail("map art must be locked; MapItem's inventory tick repaints anything that is not", POS);
+        }
+        helper.succeed();
+    }
+
+    /** A 2x2 belongs in the top-left corner of the grid, not spread along the first four slots. */
+    @PrefixGameTestTemplate(false)
+    @GameTest(template = "empty3x3x3")
+    public static void tilesKeepTheirPositionInTheGrid(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        MapArtMakerBlockEntity maker = place(helper);
+        maker.setItem(MapArtMakerBlockEntity.SLOT_BLANK, new ItemStack(Items.MAP, 4));
+
+        // Reading order: top-left, top-right, bottom-left, bottom-right.
+        List<ItemStack> results = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            results.add(MapArtService.createMap(level, colours(i * 31)));
+        }
+        if (!maker.consumeBlanksAndStore(2, 2, results)) {
+            helper.fail("a 2x2 should fit in an empty grid with four blanks", POS);
+        }
+
+        int[][] expected = {{0, 0}, {1, 0}, {0, 1}, {1, 1}};
+        for (int i = 0; i < 4; i++) {
+            int slot = MapArtMakerBlockEntity.outputSlot(expected[i][0], expected[i][1]);
+            ItemStack stored = maker.getItem(slot);
+            MapItemSavedData data = MapItem.getSavedData(stored, level);
+            if (data == null || !java.util.Arrays.equals(colours(i * 31), data.colors)) {
+                helper.fail("tile " + i + " is not in slot " + slot
+                        + "; a 2x2 must fill the top-left corner of the grid", POS);
+            }
+        }
+        // The right-hand column and bottom row belong to a 3x3 and must stay empty.
+        for (int slot : new int[]{MapArtMakerBlockEntity.outputSlot(2, 0),
+                MapArtMakerBlockEntity.outputSlot(2, 1), MapArtMakerBlockEntity.outputSlot(0, 2)}) {
+            if (!maker.getItem(slot).isEmpty()) {
+                helper.fail("slot " + slot + " is outside a 2x2 and should be empty", POS);
+            }
         }
         helper.succeed();
     }
@@ -127,8 +179,8 @@ public class MapArtGameTests {
         for (int i = 0; i < 4; i++) {
             results.add(MapArtService.createMap(level, colours(i)));
         }
-        if (maker.consumeBlanksAndStore(4, results)) {
-            helper.fail("four tiles must not be produced from a single blank map", POS);
+        if (maker.consumeBlanksAndStore(2, 2, results)) {
+            helper.fail("a 2x2 must not be produced from a single blank map", POS);
         }
         if (maker.blankCount() != 1) {
             helper.fail("a refused request must not spend blanks, found " + maker.blankCount(), POS);
@@ -152,7 +204,7 @@ public class MapArtGameTests {
 
         List<ItemStack> results = new ArrayList<>();
         results.add(MapArtService.createMap(level, colours(99)));
-        if (maker.consumeBlanksAndStore(1, results)) {
+        if (maker.consumeBlanksAndStore(1, 1, results)) {
             helper.fail("a full output area must refuse further tiles", POS);
         }
         if (maker.blankCount() != 8) {

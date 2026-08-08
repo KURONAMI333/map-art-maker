@@ -56,10 +56,13 @@ public final class MapArtService {
             throw new IllegalArgumentException("expected " + (TILE * TILE) + " colour bytes, got " + colours.length);
         }
 
-        // trackingPosition/unlimitedTracking off: this is a picture, not a survey of the terrain,
-        // so nothing should ever redraw it from world data.
+        // Locked, which is the only thing that actually stops vanilla redrawing this. MapItem's
+        // inventory tick reads `locked` and skips its terrain update when it is set; clearing
+        // trackingPosition alone does not gate that path, so an unlocked art map gets painted over
+        // with real terrain as soon as a player walks around holding it. This is the same mechanism
+        // the cartography table uses when a map is locked with a glass pane.
         MapItemSavedData data = MapItemSavedData.createFresh(
-                0.0D, 0.0D, (byte) 0, false, false, level.dimension());
+                0.0D, 0.0D, (byte) 0, false, false, level.dimension()).locked();
         System.arraycopy(colours, 0, data.colors, 0, colours.length);
         data.setDirty();
 
