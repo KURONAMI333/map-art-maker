@@ -1,0 +1,23 @@
+{
+  "block.map_art_maker.map_art_maker": "Map Art Maker",
+  "itemGroup.map_art_maker": "Map Art Maker",
+  "container.map_art_maker": "Map Art Maker",
+  "gui.map_art_maker.url": "이미지 URL",
+  "gui.map_art_maker.url_hint": "이미지 링크를 붙여넣기",
+  "gui.map_art_maker.size": "%s x %s",
+  "gui.map_art_maker.dither_on": "디더링: 켜짐",
+  "gui.map_art_maker.dither_off": "디더링: 꺼짐",
+  "gui.map_art_maker.create": "만들기",
+  "message.map_art_maker.bad_size": "허용되지 않는 크기입니다.",
+  "message.map_art_maker.too_far": "블록에서 너무 멀리 있습니다.",
+  "message.map_art_maker.no_block": "블록이 없습니다.",
+  "message.map_art_maker.need_maps": "빈 지도가 %s장 필요합니다.",
+  "message.map_art_maker.no_room": "완성된 지도를 넣을 공간이 없습니다.",
+  "message.map_art_maker.done": "지도 %s장을 만들었습니다.",
+  "message.map_art_maker.failed": "지도 아트를 만들 수 없습니다.",
+  "gui.map_art_maker.paste": "붙여넣기",
+  "message.map_art_maker.drop_unreadable": "그 파일을 읽을 수 없습니다.",
+  "message.map_art_maker.drop_too_large": "그 파일은 8MB를 초과합니다.",
+  "message.map_art_maker.drop_not_image": "그 파일은 이미지가 아닙니다.",
+  "message.map_art_maker.upload_failed": "업로드에 실패했습니다. 다시 시도하세요."
+}

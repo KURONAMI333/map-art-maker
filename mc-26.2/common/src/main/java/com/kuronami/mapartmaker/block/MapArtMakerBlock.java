@@ -1,0 +1,105 @@
+package com.kuronami.mapartmaker.block;
+
+import com.kuronami.mapartmaker.platform.Services;
+import com.kuronami.mapartmaker.register.ModBlockEntities;
+import com.mojang.serialization.MapCodec;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.Containers;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.phys.BlockHitResult;
+
+public class MapArtMakerBlock extends BaseEntityBlock {
+
+    public static final MapCodec<MapArtMakerBlock> CODEC = simpleCodec(MapArtMakerBlock::new);
+
+    /** The drawer and the picture read as a front, so the block has to face the player. */
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+
+    public MapArtMakerBlock(Properties properties) {
+        super(properties);
+        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
+        builder.add(FACING);
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+    }
+
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
+    @Override
+    protected RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
+    }
+
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new MapArtMakerBlockEntity(pos, state);
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
+                                               Player player, BlockHitResult hit) {
+        if (level.isClientSide()) {
+            return InteractionResult.SUCCESS;
+        }
+        if (player instanceof ServerPlayer serverPlayer) {
+            Services.MENU.openMapArtMakerMenu(serverPlayer, pos);
+        }
+        return InteractionResult.CONSUME;
+    }
+
+    /**
+     * Comparator neighbours have to be told the container is gone.
+     *
+     * <p>Dropping the held maps is <em>not</em> done here in 26.x: the same-block guard moved into
+     * {@code ServerLevel.updateNeighboursOnBlockSet} (vanilla skips the call entirely when the new
+     * state is the same block), and {@code BlockEntity.preRemoveSideEffects} already drops the
+     * contents of any block entity that is a {@code Container} — which this one is. Vanilla's own
+     * container blocks (Barrel / Chest / Hopper / Dispenser / BrewingStand) do exactly and only
+     * this call here.
+     */
+    @Override
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        Containers.updateNeighboursAfterDestroy(state, level, pos);
+    }
+
+    /** Kept so the block entity type is initialised before the first placement. */
+    public static void touchRegistration() {
+        ModBlockEntities.MAP_ART_MAKER.get();
+    }
+}
