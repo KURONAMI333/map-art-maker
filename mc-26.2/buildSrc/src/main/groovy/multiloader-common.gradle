@@ -79,6 +79,96 @@ jar {
     }
 }
 
+// 出荷 jar にテスト足場が混ざっていないことの機械チェック。
+// 26.x の GameTest は実レジストリ (minecraft:test_instance) に載り、そのレジストリは
+// クライアント join の configuration フェーズで同期される。出荷物にテスト登録が残ると
+// 利用者の環境でワールド生成が固まる (2026-08-09 実測)。クラス名だけでなく
+// gametest フレームワークへの参照 (定数プール) と gametest 用の structure も見る。
+tasks.register('verifyNoTestScaffoldingInJar') {
+    group = 'verification'
+    description = 'Fails if a shipped jar contains GameTest scaffolding (classes, framework references or test structures).'
+
+    // loom は jar (dev) と remapJar (出荷) を別々に作るので、存在するものを全部見る。
+    // 遅延解決: この plugin は loom より先に適用されるため、登録時点では remapJar がまだ無い。
+    var archiveTasks = tasks.matching { it.name == 'jar' || it.name == 'remapJar' }
+    dependsOn(archiveTasks)
+    inputs.files(project.provider { archiveTasks.collect { it.archiveFile.get().asFile } })
+    var stamp = layout.buildDirectory.file("reports/no-test-scaffolding/${project.name}.txt")
+    outputs.file(stamp)
+
+    doLast {
+        // クラスファイルの定数プールに現れる参照 (UTF-8 のまま生バイトに入る)。
+        var forbiddenReferences = [
+                'net/minecraft/gametest',
+                'RegisterGameTestsEvent',
+                'GameTestInstance',
+                'GameTestHelper',
+                'TEST_INSTANCE'
+        ]
+        var testClassPattern = java.util.regex.Pattern.compile('.*/[A-Za-z0-9_$]*Tests?([$][^/]*)?[.]class')
+        var testDirPattern = java.util.regex.Pattern.compile('(?i)(.*/)?tests?/.*')
+        var structurePattern = java.util.regex.Pattern.compile('data/[^/]+/structure/.*')
+        var scan = { File archive ->
+            var offences = []
+            new java.util.zip.ZipFile(archive).withCloseable { zip ->
+                zip.entries().each { entry ->
+                    if (entry.directory) {
+                        return
+                    }
+                    var name = entry.name
+                    if (name.toLowerCase(Locale.ROOT).contains('gametest')) {
+                        offences.add(name + '  (entry name)')
+                    } else if (testDirPattern.matcher(name).matches()) {
+                        offences.add(name + '  (test directory)')
+                    } else if (testClassPattern.matcher(name).matches()) {
+                        offences.add(name + '  (test class name)')
+                    } else if (structurePattern.matcher(name).matches()) {
+                        // data/<ns>/structure/ は GameTest の構造テンプレート置き場
+                        // (ワールド生成の構造は data/<ns>/worldgen/structure/)。
+                        offences.add(name + '  (gametest structure template)')
+                    } else if (name.endsWith('.class')) {
+                        var bytes = zip.getInputStream(entry).withCloseable { it.readAllBytes() }
+                        var text = new String(bytes, java.nio.charset.StandardCharsets.ISO_8859_1)
+                        var hit = forbiddenReferences.find { text.contains(it) }
+                        if (hit != null) {
+                            offences.add(name + '  (references ' + hit + ')')
+                        }
+                    }
+                }
+            }
+            return offences
+        }
+
+        var lines = []
+        var failures = []
+        archiveTasks.each { archiveTask ->
+            var archive = archiveTask.archiveFile.get().asFile
+            var offences = scan(archive)
+            if (offences.isEmpty()) {
+                lines.add('OK ' + archive.name + ': no test scaffolding')
+            } else {
+                lines.add('FAIL ' + archive.name)
+                offences.each { lines.add('  ' + it) }
+                failures.add(archive.name + ' ships test scaffolding:' + System.lineSeparator()
+                        + offences.collect { '  - ' + it }.join(System.lineSeparator()))
+            }
+        }
+        var stampFile = stamp.get().asFile
+        stampFile.parentFile.mkdirs()
+        stampFile.text = lines.join(System.lineSeparator()) + System.lineSeparator()
+        if (failures.isEmpty()) {
+            var names = archiveTasks.collect { it.archiveFile.get().asFile.name }.join(', ')
+            logger.lifecycle('verifyNoTestScaffoldingInJar: OK — ' + project.path + ' (' + names + ')')
+        } else {
+            throw new GradleException(failures.join(System.lineSeparator()))
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('verifyNoTestScaffoldingInJar')
+}
+
 processResources {
     var expandProps = [
             'version'                      : version,

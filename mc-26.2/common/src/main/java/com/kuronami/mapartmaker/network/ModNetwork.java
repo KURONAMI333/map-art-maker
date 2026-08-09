@@ -125,11 +125,15 @@ public final class ModNetwork {
      * {@link ServerLevel#setMapData} writes a {@code map_N.dat} entry), so nothing may be minted
      * until every rejection path below has had its say.
      *
+     * <p>Public because the GameTests that guard those rejection paths live in a separate,
+     * development-only mod ({@code neoforge/src/gametest}), and FML loads each mod as its own
+     * JPMS module — a test class cannot share this package.
+     *
      * @param dimension the dimension the request was made in; storing is refused if the player is
      *                   no longer there, since {@code pos} would otherwise resolve to whatever
      *                   block happens to sit at those coordinates in the new dimension
      */
-    static void storeAssembledMaps(ServerPlayer player, BlockPos pos, ResourceKey<Level> dimension,
+    public static void storeAssembledMaps(ServerPlayer player, BlockPos pos, ResourceKey<Level> dimension,
                                     int tilesX, int tilesY, Function<ServerLevel, List<ItemStack>> mapSupplier) {
         ServerLevel level = player.level();
         if (!level.dimension().equals(dimension)) {

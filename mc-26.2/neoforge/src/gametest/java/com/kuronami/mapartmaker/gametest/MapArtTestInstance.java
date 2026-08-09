@@ -21,8 +21,12 @@ import net.minecraft.network.chat.MutableComponent;
  * 1.21.1 セルのテスト本体（{@link MapArtGameTests} / {@code MapArtNetworkGameTests} の static メソッド）を
  * そのまま流用できるようにする。
  *
- * <p>{@link #codec()} は datapack 経由の直列化用で、コードから直接登録するこの経路では読まれない。
- * 直列化が要る用途（{@code /test} コマンドの export 等）には使えない。
+ * <p>{@link #codec()} は {@code BuiltInRegistries.TEST_INSTANCE_TYPE} に登録していない
+ * {@code MapCodec.unit} なので、このインスタンスは直列化できない。{@code minecraft:test_instance}
+ * は {@code RegistrySynchronization} が同期する registry なので、**この型が載った状態でクライアントが
+ * join すると configuration フェーズが直列化に失敗して完了しない**（＝ワールド生成が終わらない）。
+ * それが許されるのは、この source set が開発専用で {@code runGameTestServer} にしか載らないため。
+ * 出荷 jar へ入れてはならない（{@code verifyNoTestScaffoldingInJar} が機械的に止める）。
  */
 public class MapArtTestInstance extends GameTestInstance {
 
