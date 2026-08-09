@@ -5,7 +5,7 @@
 # ここで ${...} を書くとそのまま出力され FML がロードを拒否する。
 modLoader = "javafml"
 loaderVersion = "[4,)"
-license = "MIT"
+license = "All Rights Reserved"
 [[mods]]
 modId = "map_art_maker_gametest"
 version = "0.0.0"

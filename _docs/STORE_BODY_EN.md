@@ -52,4 +52,4 @@ When a URL is used, the server is the one that fetches it, so loopback, LAN, and
 
 Install on both the client and the server. No other mods required.
 
-MIT licensed. Free to use in any modpack. Source and issues: https://github.com/KURONAMI333/map-art-maker
+All Rights Reserved. Free to put in any modpack, on any platform, monetised or not - no permission needed, no credit required. Source is published so you can read exactly what it does: https://github.com/KURONAMI333/map-art-maker

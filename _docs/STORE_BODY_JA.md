@@ -39,4 +39,4 @@ URL を使うときに取りに行くのはサーバーなので、loopback・LA
 
 クライアント・サーバーの両方に導入が必要。他 MOD への依存は無し。
 
-MIT ライセンス。どのモッドパックでも自由に利用可。ソースと Issue: https://github.com/KURONAMI333/map-art-maker
+All Rights Reserved。どのモッドパックにも、どのプラットフォームでも、収益化の有無を問わず自由に同梱できる（許可を取る必要も、クレジットを載せる必要もない）。何をしている MOD なのかを読めるように、ソースは公開している: https://github.com/KURONAMI333/map-art-maker
