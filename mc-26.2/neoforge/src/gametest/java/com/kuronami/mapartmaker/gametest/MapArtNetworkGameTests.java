@@ -1,8 +1,9 @@
-package com.kuronami.mapartmaker.network;
+package com.kuronami.mapartmaker.gametest;
 
 import com.kuronami.mapartmaker.Constants;
 import com.kuronami.mapartmaker.block.MapArtMakerBlockEntity;
 import com.kuronami.mapartmaker.mapart.MapArtService;
+import com.kuronami.mapartmaker.network.ModNetwork;
 import com.kuronami.mapartmaker.register.ModBlocks;
 
 import net.minecraft.core.BlockPos;
@@ -18,8 +19,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Exercises {@link ModNetwork#storeAssembledMaps} directly (this class shares its package on
- * purpose, to reach that package-private method) across its rejection paths.
+ * Exercises {@link ModNetwork#storeAssembledMaps} directly across its rejection paths.
  *
  * <p>The regression this guards against: {@code storeAssembledMaps} used to receive an
  * already-built {@code List<ItemStack>}, which meant every map in it had already been minted (a

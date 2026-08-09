@@ -2,7 +2,6 @@ package com.kuronami.mapartmaker;
 
 import com.kuronami.mapartmaker.client.MapArtMakerScreen;
 import com.kuronami.mapartmaker.config.NeoForgeConfig;
-import com.kuronami.mapartmaker.gametest.MapArtGameTestRegistration;
 import com.kuronami.mapartmaker.network.NeoForgePayloads;
 import com.kuronami.mapartmaker.platform.registry.NeoForgeRegistrationProvider;
 import com.kuronami.mapartmaker.register.ModCreativeTab;
@@ -31,8 +30,6 @@ public class MapArtMaker {
         // 26.2 の CreativeModeTab$Output は protected なので common では中身を書けない。
         // タブの identity だけ common が持ち、中身はこのイベントで流す。
         eventBus.addListener(MapArtMaker::buildCreativeTab);
-        // 26.x の GameTest は GameTestInstance をレジストリへ登録する方式（アノテーション廃止）。
-        eventBus.addListener(MapArtGameTestRegistration::register);
         container.registerConfig(ModConfig.Type.COMMON, NeoForgeConfig.SPEC);
         // COMMON rather than SERVER so the client knows the tile limit its size button cycles
         // through. The server revalidates every request regardless.

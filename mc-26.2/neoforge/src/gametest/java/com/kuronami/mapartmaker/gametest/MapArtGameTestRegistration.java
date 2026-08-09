@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.kuronami.mapartmaker.Constants;
-import com.kuronami.mapartmaker.network.MapArtNetworkGameTests;
 
 import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTestHelper;
