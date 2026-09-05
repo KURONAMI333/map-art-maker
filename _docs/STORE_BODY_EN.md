@@ -1,23 +1,3 @@
-<!--
-KURONAMI store description (Modrinth body / CurseForge description — shared, English).
-Follows knowledge/STORE_BODY_FRAMEWORK.md (no version table, function-first hook, facts over adjectives).
-
-== Store fields (set separately from the body) ==
-SUMMARY: Paste an image link or drop a picture onto the block to craft locked vanilla map art.
-MODRINTH categories: decoration, utility | loaders: neoforge | versions: 1.21.1, 26.2 | env: client + server (required both)
-MODRINTH slug: map-art-maker
-CURSEFORGE: main category = Miscellaneous; additional = Cosmetic, Server Utility | summary: Paste an image link or drop a picture onto the block to craft locked vanilla map art.
-
-NOTE (unresolved as of 2026-08-08): the launch instruction that produced this file said "ship NeoForge
-and Fabric, both 1.21.1 and 26.2." DESIGN_COMPILE.md §8 (dated the same day) records a later 統括裁定:
-publish NeoForge only for now (Fabric jars keep building but are not published, config default reflects
-this — see DESIGN_COMPILE.md §8 and GAP_LOG.md item 2 under 残タスク). This body is written for the
-NeoForge-only decision. If Fabric publishing is later approved, add "loaders: fabric" to Modrinth and
-re-check the body for any NeoForge-specific wording (there is currently none — the body is loader-neutral).
--->
-
-# Map Art Maker
-
 Paste an image link, or drop a picture file onto the block, and get vanilla map art you can craft and place like any other map.
 
 Vanilla maps only ever show terrain. This adds a craftable block that turns any picture into a locked filled map, ready to frame on a wall — either alone or as part of a larger grid for a mural. No admin permissions, no launcher plugin: it's a block and a recipe, built for survival.
@@ -50,6 +30,8 @@ When a URL is used, the server is the one that fetches it, so loopback, LAN, and
 - No editing or deleting map art after it's created
 - No Create contraption integration
 
-Install on both the client and the server. No other mods required.
+No other mods are required.
+
+Bugs and questions: comment on the CurseForge page, or DM @kuronami333 on X.
 
 All Rights Reserved. Free to put in any modpack, on any platform, monetised or not - no permission needed, no credit required. Source is published so you can read exactly what it does: https://github.com/KURONAMI333/map-art-maker
