@@ -1,32 +1,54 @@
-# MultiLoader Template
+# Map Art Maker
 
-This project provides a Gradle project template that can compile Minecraft mods for multiple modloaders using a common project for the sources. This project does not require any third party libraries or dependencies. If you have any questions or want to discuss the project, please join our [Discord](https://discord.myceliummod.network).
+Paste an image link, or drop a picture file onto the block, and get vanilla map art you can craft and place like any other map.
 
-## Getting Started
+Vanilla maps only ever show terrain. This adds a craftable block that turns any picture into a locked filled map, ready to frame on a wall — either alone or as part of a larger grid for a mural. No admin permissions, no launcher plugin: it's a block and a recipe, built for survival.
 
-### IntelliJ IDEA
-This guide will show how to import the MultiLoader Template into IntelliJ IDEA. The setup process is roughly equivalent to setting up the modloaders independently and should be very familiar to anyone who has worked with their MDKs.
+**Features**
 
-1. Clone or download this repository to your computer.
-2. Configure the project by setting the properties in the `gradle.properties` file. You will also need to change the `rootProject.name`  property in `settings.gradle`, this should match the folder name of your project, or else IDEA may complain.
-3. Open the template's root folder as a new project in IDEA. This is the folder that contains this README.md file and the gradlew executable.
-4. If your default JVM/JDK is not Java 21 you will encounter an error when opening the project. This error is fixed by going to `File > Settings > Build, Execution, Deployment > Build Tools > Gradle > Gradle JVM` and changing the value to a valid Java 21 JVM. You will also need to set the Project SDK to Java 21. This can be done by going to `File > Project Structure > Project SDK`. Once both have been set open the Gradle tab in IDEA and click the refresh button to reload the project.
-5. Open your Run/Debug Configurations. Under the `Application` category there should now be options to run Fabric and NeoForge projects. Select one of the client options and try to run it.
-6. Assuming you were able to run the game in step 5 your workspace should now be set up.
+- Paste an image URL, or drag a local image file onto the block's screen — both work
+- Build 1x1 up to 3x3 grids (up to 9 maps) for larger murals
+- Toggle dithering on or off before creating
+- Consumes empty maps from your inventory, one per output tile
+- The block accepts empty maps from the top or sides and lets a hopper pull finished maps from below, so bulk runs don't need to be babysat
+- Finished maps are locked, the same mechanism vanilla uses when you lock a map with glass at a cartography table, so walking around the world with one in hand never overwrites it back into real terrain
+- Multiplayer-safe: finished maps are stored server-side, so every player who picks one up sees the same picture
 
-### Eclipse
-While it is possible to use this template in Eclipse it is not recommended. During the development of this template multiple critical bugs and quirks related to Eclipse were found at nearly every level of the required build tools. While we continue to work with these tools to report and resolve issues support for projects like these are not there yet. For now Eclipse is considered unsupported by this project. The development cycle for build tools is notoriously slow so there are no ETAs available.
+**How to use**
 
-## Development Guide
-When using this template the majority of your mod should be developed in the `common` project. The `common` project is compiled against the vanilla game and is used to hold code that is shared between the different loader-specific versions of your mod. The `common` project has no knowledge or access to ModLoader specific code, apis, or concepts. Code that requires something from a specific loader must be done through the project that is specific to that loader, such as the `fabric` or `neoforge` projects.
+1. Craft a Map Art Maker block (3 sticks, 5 planks, 1 empty map — cartography-table shaped).
+2. Place empty maps in the input, then either paste an image URL or drop an image file onto the screen.
+3. Pick a grid size (1x1 to 3x3) and hit Create. Take the finished maps out, or let a hopper do it.
 
-Loader specific projects such as the `fabric` and `neoforge` project are used to load the `common` project into the game. These projects also define code that is specific to that loader. Loader specific projects can access all the code in the `common` project. It is important to remember that the `common` project can not access code from loader specific projects.
+**For server admins**
 
-## Removing Platforms and Loaders
-While this template has support for many modloaders, new loaders may appear in the future, and existing loaders may become less relevant.
+When a URL is used, the server is the one that fetches it, so loopback, LAN, and cloud metadata addresses are refused out of the box — a player can't point the machine at your internal network. A config option opens that up if you deliberately host images somewhere private the server should reach.
 
-Removing loader specific projects is as easy as deleting the folder, and removing the `include("projectname")` line from the `settings.gradle` file.
-For example if you wanted to remove support for `forge` you would follow the following steps:
+**Not in this version**
 
-1. Delete the subproject folder. For example, delete `MultiLoader-Template/forge`.
-2. Remove the project from `settings.gradle`. For example, remove `include("forge")`. 
+- No clipboard image paste — only a typed/pasted URL or a dropped file work
+- Dithering is a fixed algorithm you switch on or off, not a choice of algorithms
+- No automatic item frame placement — you place the finished maps yourself
+- No editing or deleting map art after it's created
+- No Create contraption integration
+
+No other mods are required.
+
+All Rights Reserved. Free to put in any modpack, on any platform, monetised or not - no permission needed, no credit required. Source is published so you can read exactly what it does: https://github.com/KURONAMI333/map-art-maker
+
+## Published builds
+
+The table lists files attached to the public GitHub release; choose the file for your Minecraft version and loader.
+
+| Minecraft | NeoForge | Forge | Fabric |
+|---|:---:|:---:|:---:|
+| 1.21.1 | Yes | — | — |
+| 26.2 | Yes | — | — |
+
+## Downloads and support
+
+Downloads: [CurseForge](https://www.curseforge.com/minecraft/mc-mods/map-art-maker) · [GitHub Releases](https://github.com/KURONAMI333/map-art-maker/releases/tag/v1.0.0).
+
+For bugs and questions, comment on the [CurseForge page](https://www.curseforge.com/minecraft/mc-mods/map-art-maker) or DM [@kuronami333 on X](https://x.com/kuronami333).
+
+[Source](https://github.com/KURONAMI333/map-art-maker) · [License](LICENSE)
