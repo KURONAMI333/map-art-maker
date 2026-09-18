@@ -10,7 +10,7 @@
     "contact": {
         "homepage": "https://modrinth.com/mod/map-art-maker",
         "sources": "https://github.com/KURONAMI333/map-art-maker",
-        "issues": "https://x.com/kuronami333"
+        "issues": "https://github.com/KURONAMI333/map-art-maker/issues"
     },
     "license": "${license}",
     "icon": "${mod_id}.png",
